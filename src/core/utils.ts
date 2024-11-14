@@ -12,9 +12,6 @@ export function accumulateDays(
   output: Output.rest
 ): number;
 
-let b = null;
-let b = new Date();
-
 export function accumulateDays(
   total: number,
   mask: number[],

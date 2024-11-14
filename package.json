@@ -25,6 +25,7 @@
   },
   "lint-staged": {
     "src/**/*.{ts,js}": [
+      "tsc --noEmit",
       "eslint --fix",
       "prettier --write"
     ]
