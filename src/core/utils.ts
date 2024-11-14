@@ -13,6 +13,7 @@ export function accumulateDays(
 ): number;
 
 let b = null;
+let b = new Date();
 
 export function accumulateDays(
   total: number,
