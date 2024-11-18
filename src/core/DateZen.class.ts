@@ -87,10 +87,6 @@ class DateZen {
     return year;
   }
 
-  getUTCMonth(): number {
-    return 1;
-  }
-
   getMonth() {
     let totalDays = this.#totalDays;
 
