@@ -1,7 +1,5 @@
 // src/index.ts
-import DateZenTest from './core/DateZenTest.class';
 import DateZen from './core/DateZen.class';
-import DateZenNew from './core/DateZenNew.class';
 
 // const test = (utc: number, klass: any) => {
 //   const dZen = new klass(utc);
@@ -78,4 +76,4 @@ import DateZenNew from './core/DateZenNew.class';
 //   new Intl.DateTimeFormat('en-US').resolvedOptions()
 // );
 
-export { DateZenTest, DateZen, DateZenNew };
+export { DateZen };

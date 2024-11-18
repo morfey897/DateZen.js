@@ -62,7 +62,6 @@ class DateZen {
   }
 
   getDay() {
-    // Math.floor((this.#totalSeconds % SEC_IN_WEEK) / SEC_IN_DAY))
     return (FIRST_DAY + this.#totalDays) % WEEK;
   }
 

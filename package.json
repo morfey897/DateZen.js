@@ -24,8 +24,7 @@
     }
   },
   "lint-staged": {
-    "src/**/*.{ts,js}": [
-      "tsc --noEmit",
+    "*.{ts,js}": [
       "eslint --fix",
       "prettier --write"
     ]
@@ -43,7 +42,8 @@
   "license": "MIT",
   "devDependencies": {
     "@eslint/js": "^9.12.0",
-    "@types/jest": "^29.5.13",
+    "@jest/globals": "^29.7.0",
+    "@types/jest": "^29.5.14",
     "@typescript-eslint/eslint-plugin": "^8.9.0",
     "@typescript-eslint/parser": "^8.9.0",
     "eslint": "^9.12.0",
@@ -51,6 +51,7 @@
     "eslint-import-resolver-typescript": "^3.6.3",
     "eslint-plugin-check-file": "^2.8.0",
     "eslint-plugin-import": "^2.31.0",
+    "eslint-plugin-jest": "^28.9.0",
     "eslint-plugin-prettier": "^5.2.1",
     "globals": "^15.12.0",
     "husky": "^9.1.6",

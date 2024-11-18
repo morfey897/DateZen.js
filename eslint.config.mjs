@@ -5,6 +5,7 @@ import prettierPlugin from 'eslint-plugin-prettier';
 import checkFilePlugin from 'eslint-plugin-check-file';
 import importPlugin from 'eslint-plugin-import';
 import eslintRecommended from '@eslint/js';
+import jestPlugin from 'eslint-plugin-jest';
 
 export default [
   eslintRecommended.configs.recommended,
@@ -14,13 +15,13 @@ export default [
       'dist/**/*',
       'node_modules/*',
       'node_modules/**/*',
-      'eslint.config.{js,mjs,cjs}',
+      'eslint.config.{ts,js,mjs,cjs}',
       'tsup.config.{ts,js,mjs,cjs}',
-      'jest.config.{js,mjs,cjs}',
+      'jest.config.{ts,js,mjs,cjs}',
     ],
   },
   {
-    files: ['**/*.{js,ts}'],
+    files: ['*.{js,ts}'],
     languageOptions: {
       parser: tsParser,
       parserOptions: {
@@ -31,6 +32,7 @@ export default [
       globals: {
         ...globals.browser,
         ...globals.node,
+        ...jestPlugin.environments.globals,
         process: 'readonly',
         NodeJS: 'readonly',
       },
@@ -40,6 +42,7 @@ export default [
       import: importPlugin,
       'check-file': checkFilePlugin,
       '@typescript-eslint': tsEslint,
+      jest: jestPlugin,
     },
     rules: {
       ...tsEslint.configs.recommended.rules,
@@ -100,6 +103,9 @@ export default [
         node: {
           extensions: ['.js', '.ts'],
         },
+      },
+      jest: {
+        version: 'latest',
       },
     },
   },

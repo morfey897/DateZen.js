@@ -1,13 +1,14 @@
 {
   "compilerOptions": {
     "baseUrl": "./",
-    "target": "ES2021",
+    "target": "ESNext",
     "module": "ESNext",
     "declaration": true,
     "outDir": "./dist",
     "esModuleInterop": true,
     "skipLibCheck": true,
     "sourceMap": true,
+    "moduleResolution": "node",
     "declarationDir": "./dist/types",
 
     // Linting
@@ -15,9 +16,10 @@
     "noEmit": true,
 
     "paths": {
-      "@/*": ["src/*"]
+      "@/*": ["src/*"],
+      "@tests/*": ["__tests__/*"]
     }
   },
-  "include": ["src/**/*"],
-  "exclude": ["node_modules", "dist", "tests"]
+  "include": ["src/**/*", "__tests__/**/*"],
+  "exclude": ["node_modules", "dist"]
 }
