@@ -7,6 +7,7 @@ export const LAST_YEAR = 2100;
 
 export const DAYS_IN_YEAR = 365;
 
+export const MILLSEC_IN_SEC = 1000;
 export const SEC_IN_MIN = 60;
 export const SEC_IN_HOUR = 60 * 60;
 export const SEC_IN_DAY = 60 * 60 * 24;

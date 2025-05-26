@@ -2,9 +2,23 @@ import { describe, expect } from '@jest/globals';
 import diff from '@/utils/diff';
 
 describe('diff', () => {
-  it('should return diff in seconds by default', () => {
+  it('should return diff in millseconds by default', () => {
     const result = diff('2025-05-01T10:59:00', '2025-05-01T10:00:30');
-    expect(result).toBe(59 * 60 - 30);
+    expect(result).toBe((59 * 60 - 30) * 1000);
+  });
+
+  it('should return diff in seconds', () => {
+    const result = diff('2025-05-01T10:00:01', '2025-05-01T10:00:30', 's');
+    expect(result).toBe(30 - 1);
+  });
+
+  it('should return diff in seconds with millseconds', () => {
+    const result = diff(
+      '2025-05-01T00:01:00.223',
+      '2025-05-01T00:02:00.115',
+      's'
+    );
+    expect(result).toBe(59);
   });
 
   it('should return diff in minutes', () => {

@@ -11,12 +11,14 @@ import {
   DAYS_UP_TO_LAST_YEAR,
   LIST_OF_DAYS_IN_400_YEARS,
   SEC_IN_WEEK,
+  MILLSEC_IN_SEC,
 } from './config';
 import { Parts, DateZenInput } from './types';
-import { binarySearch, isLeapYear, parseInput } from './utils';
+import { binarySearch, isLeapYear, parseInput, toMillseconds } from './utils';
 
 class DateZen {
-  private _timestamp: number = NaN;
+  // Timestamp in seconds since 01.01.1970 00:00:00 UTC
+  private ts: number = NaN;
 
   private _memo?: {
     month: number;
@@ -26,11 +28,11 @@ class DateZen {
   };
 
   constructor(input?: DateZenInput) {
-    this._timestamp = parseInput(input);
+    this.ts = parseInput(input);
   }
 
   private get totalDays() {
-    return Math.floor(this._timestamp / SEC_IN_DAY);
+    return Math.floor(this.ts / (SEC_IN_DAY * MILLSEC_IN_SEC));
   }
 
   private getMemo() {
@@ -68,11 +70,27 @@ class DateZen {
   }
 
   /**
+   * Get the timestamp in millseconds
+   * @returns {number} timestamp in millseconds
+   */
+  toMillseconds(): number {
+    return this.ts;
+  }
+
+  /**
    * Get the timestamp in seconds
    * @returns {number} timestamp in seconds
    */
-  toTimestamp(): number {
-    return this._timestamp;
+  toSeconds(): number {
+    return Math.floor(this.ts / MILLSEC_IN_SEC);
+  }
+
+  /**
+   * Millseconds part of the time
+   * @returns {number} 0-999
+   */
+  millseconds(): number {
+    return this.ts % MILLSEC_IN_SEC;
   }
 
   /**
@@ -80,7 +98,9 @@ class DateZen {
    * @returns {number} 0-59
    */
   seconds(): number {
-    return this._timestamp % SEC_IN_MIN;
+    return Math.floor(
+      (this.ts % (SEC_IN_MIN * MILLSEC_IN_SEC)) / MILLSEC_IN_SEC
+    );
   }
 
   /**
@@ -88,7 +108,9 @@ class DateZen {
    * @returns {number} 0-59
    */
   minutes(): number {
-    return Math.floor((this._timestamp % SEC_IN_HOUR) / SEC_IN_MIN);
+    return Math.floor(
+      (this.ts % (SEC_IN_HOUR * MILLSEC_IN_SEC)) / (SEC_IN_MIN * MILLSEC_IN_SEC)
+    );
   }
 
   /**
@@ -96,7 +118,9 @@ class DateZen {
    * @returns {number} 0-23
    */
   hours(): number {
-    return Math.floor((this._timestamp % SEC_IN_DAY) / SEC_IN_HOUR);
+    return Math.floor(
+      (this.ts % (SEC_IN_DAY * MILLSEC_IN_SEC)) / (SEC_IN_HOUR * MILLSEC_IN_SEC)
+    );
   }
 
   /**
@@ -181,6 +205,7 @@ class DateZen {
       minute: this.minutes(),
       second: this.seconds(),
       weekday: this.weekday(),
+      millisecond: this.millseconds(),
     };
   }
 
@@ -191,9 +216,19 @@ class DateZen {
   toISOString(): string {
     if (this.isInvalid()) return 'Invalid Date';
 
-    const { year, month, day, hour, minute, second } = this.toParts();
+    const { year, month, day, hour, minute, second, millisecond } =
+      this.toParts();
 
-    return `${year}-${String(month + 1).padStart(2, '0')}-${String(day).padStart(2, '0')}T${String(hour).padStart(2, '0')}:${String(minute).padStart(2, '0')}:${String(second).padStart(2, '0')}Z`;
+    const mm = String(month + 1).padStart(2, '0');
+    const dd = String(day).padStart(2, '0');
+    const HH = String(hour).padStart(2, '0');
+    const MM = String(minute).padStart(2, '0');
+    const SS = String(second).padStart(2, '0');
+    const MS =
+      millisecond > 0 ? '.' + String(millisecond).padStart(3, '0') : '';
+    const TZ = 'Z'; // UTC timezone
+
+    return `${year}-${mm}-${dd}T${HH}:${MM}:${SS}${MS}${TZ}`;
   }
 
   /**
@@ -206,23 +241,19 @@ class DateZen {
     hours = 0,
     minutes = 0,
     seconds = 0,
+    milliseconds = 0,
   }: {
     weeks?: number;
     days?: number;
     hours?: number;
     minutes?: number;
     seconds?: number;
+    milliseconds?: number;
   }): DateZen {
     const totalSeconds =
-      weeks * SEC_IN_WEEK +
-      days * SEC_IN_DAY +
-      hours * SEC_IN_HOUR +
-      minutes * SEC_IN_MIN +
-      seconds;
-
-    if (totalSeconds === 0) return new DateZen(this._timestamp);
-
-    return new DateZen(this._timestamp + totalSeconds);
+      weeks * SEC_IN_WEEK * MILLSEC_IN_SEC +
+      toMillseconds(days, hours, minutes, seconds, milliseconds);
+    return new DateZen(this.ts + totalSeconds);
   }
 
   /**
@@ -230,8 +261,10 @@ class DateZen {
    * @returns {boolean} true if the date is valid
    */
   isInvalid(): boolean {
-    return Number.isNaN(this._timestamp);
+    return Number.isNaN(this.ts);
   }
+
+  format() {}
 
   /**
    * Interpret the date as a string
@@ -245,12 +278,12 @@ class DateZen {
 
   /**
    * Interpret the date as a number
-   * @returns {number} timestamp in seconds
+   * @returns {number} timestamp in millseconds
    * @description
    * This method is called when the object is used as a number
    */
   valueOf(): number {
-    return this._timestamp;
+    return this.ts;
   }
 
   /**
@@ -262,7 +295,7 @@ class DateZen {
    */
   [Symbol.toPrimitive](hint: string): number | string {
     if (hint === 'string') return this.toISOString();
-    return this._timestamp;
+    return this.ts;
   }
 }
 

@@ -16,7 +16,7 @@ describe('Core from 1970 to 2100', () => {
 
   test.each(cases)('Timestamp: %i -> DateZen: %s', (...timestamp) => {
     const milseconds = timestamp[0] as unknown as number;
-    const dateZen = new DateZen(Math.floor(milseconds / 1000));
+    const dateZen = new DateZen(milseconds);
     const date = new Date(milseconds);
 
     expect({
@@ -27,6 +27,7 @@ describe('Core from 1970 to 2100', () => {
       h: dateZen.hours(),
       m: dateZen.minutes(),
       s: dateZen.seconds(),
+      ms: dateZen.millseconds(),
     }).toEqual({
       yyyy: date.getUTCFullYear(),
       mm: date.getUTCMonth(),
@@ -35,6 +36,7 @@ describe('Core from 1970 to 2100', () => {
       h: date.getUTCHours(),
       m: date.getUTCMinutes(),
       s: date.getUTCSeconds(),
+      ms: date.getUTCMilliseconds(),
     });
   });
 });
@@ -53,7 +55,7 @@ describe('Core up to 2100', () => {
 
   test.each(cases)('Timestamp: %i -> DateZen: %s', (...timestamp) => {
     const milseconds = timestamp[0] as unknown as number;
-    const dateZen = new DateZen(Math.floor(milseconds / 1000));
+    const dateZen = new DateZen(milseconds);
     const date = new Date(milseconds);
 
     expect({
@@ -64,6 +66,7 @@ describe('Core up to 2100', () => {
       h: dateZen.hours(),
       m: dateZen.minutes(),
       s: dateZen.seconds(),
+      ms: dateZen.millseconds(),
     }).toEqual({
       yyyy: date.getUTCFullYear(),
       mm: date.getUTCMonth(),
@@ -72,6 +75,7 @@ describe('Core up to 2100', () => {
       h: date.getUTCHours(),
       m: date.getUTCMinutes(),
       s: date.getUTCSeconds(),
+      ms: date.getUTCMilliseconds(),
     });
   });
 });

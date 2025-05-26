@@ -5,6 +5,7 @@ export type Parts = {
   hour: number;
   minute: number;
   second: number;
+  millisecond: number;
   weekday: number;
 };
 
@@ -17,6 +18,7 @@ export type DateZenInput =
       hour?: number;
       minute?: number;
       second?: number;
+      millisecond?: number;
     }
   | string
   | number

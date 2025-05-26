@@ -1,6 +1,17 @@
 import { DAYS_IN_YEAR_BY_MOTHES, DAYS_IN_YEAR, FIRST_YEAR } from './config';
-import { SEC_IN_DAY, SEC_IN_HOUR, SEC_IN_MIN } from './config';
+import { SEC_IN_DAY, SEC_IN_HOUR, SEC_IN_MIN, MILLSEC_IN_SEC } from './config';
 import { DateZenInput } from './types';
+
+export const toMillseconds = (
+  days: number,
+  hours: number,
+  minutes: number,
+  seconds: number,
+  millisecond: number
+): number =>
+  (days * SEC_IN_DAY + hours * SEC_IN_HOUR + minutes * SEC_IN_MIN + seconds) *
+    MILLSEC_IN_SEC +
+  millisecond;
 
 export function binarySearch(target: number, mask: number[]): [number, number] {
   if (Number.isNaN(target)) return [NaN, NaN];
@@ -29,6 +40,7 @@ export function isLeapYear(year: number): 0 | 1 {
     | 1;
 }
 
+// TODO for format
 export function patternMatch(pattern: string) {
   const match = pattern.match(
     /(?<!\\)(Y{1,4}|M{1,4}|D{1,4}|d{1,4}|h{1,4}|m{1,4}|s{1,4})/g
@@ -55,22 +67,28 @@ export function calcDaysSinceEpoch(y: number, m: number, d: number): number {
 
 export function parseISOString(input: string): number {
   const match = input.match(
-    /^(\d{4})-(\d{2})-(\d{2})[T ](\d{2}):(\d{2}):(\d{2})(?:\.\d+)?(?:Z)?$/
+    /^(\d{4})-(\d{2})-(\d{2})[T ](\d{2}):(\d{2}):(\d{2})(\.\d+)?(?:Z)?$/
   );
   if (!match) return NaN;
 
-  const [, y, m, d, hh, mm, ss] = match.map(Number);
+  const [, y, m, d, hh, mm, ss, ms] = match.map(Number);
   const days = calcDaysSinceEpoch(y, m, d);
-  return days * SEC_IN_DAY + hh * SEC_IN_HOUR + mm * SEC_IN_MIN + ss;
+  return toMillseconds(
+    days,
+    hh,
+    mm,
+    ss,
+    Number.isFinite(ms) ? ms * MILLSEC_IN_SEC : 0
+  );
 }
 
-export function parseInput(input?: DateZenInput) {
-  // Convert string as ISO 8601 to timestamp
+export function parseInput(input?: DateZenInput): number {
+  // Convert string as ISO 8601 to millseconds
   if (typeof input === 'string') return parseISOString(input);
-  // Convert number to timestamp
+  // Convert number to millseconds
   if (typeof input === 'number')
-    return Number.isFinite(input) ? Math.floor(input / 1000) : NaN;
-  // Convert object to timestamp
+    return Number.isFinite(input) ? Math.floor(input) : NaN;
+  // Convert object to millseconds
   if (
     input &&
     typeof input === 'object' &&
@@ -80,15 +98,23 @@ export function parseInput(input?: DateZenInput) {
     const { value, unit } = input;
     switch (unit) {
       case 'ms':
-        return Number.isFinite(value) ? Math.floor(value / 1000) : NaN;
-      case 's':
         return Number.isFinite(value) ? Math.floor(value) : NaN;
+      case 's':
+        return Number.isFinite(value)
+          ? Math.floor(value * MILLSEC_IN_SEC)
+          : NaN;
       case 'm':
-        return Number.isFinite(value) ? Math.floor(value * SEC_IN_MIN) : NaN;
+        return Number.isFinite(value)
+          ? Math.floor(value * SEC_IN_MIN * MILLSEC_IN_SEC)
+          : NaN;
       case 'h':
-        return Number.isFinite(value) ? Math.floor(value * SEC_IN_HOUR) : NaN;
+        return Number.isFinite(value)
+          ? Math.floor(value * SEC_IN_HOUR * MILLSEC_IN_SEC)
+          : NaN;
       case 'd':
-        return Number.isFinite(value) ? Math.floor(value * SEC_IN_DAY) : NaN;
+        return Number.isFinite(value)
+          ? Math.floor(value * SEC_IN_DAY * MILLSEC_IN_SEC)
+          : NaN;
       default:
         return NaN;
     }
@@ -101,22 +127,34 @@ export function parseInput(input?: DateZenInput) {
     'month' in input &&
     'day' in input
   ) {
-    const { year, month, day, hour = 0, minute = 0, second = 0 } = input;
+    const {
+      year,
+      month,
+      day,
+      hour = 0,
+      minute = 0,
+      second = 0,
+      millisecond = 0,
+    } = input;
 
-    const allAreNumbers = [year, month, day, hour, minute, second].every((v) =>
-      Number.isFinite(v)
-    );
+    const allAreNumbers = [
+      year,
+      month,
+      day,
+      hour,
+      minute,
+      second,
+      millisecond,
+    ].every((v) => Number.isFinite(v));
 
     if (!allAreNumbers) {
       return NaN;
     }
     const days = calcDaysSinceEpoch(year, month, day);
-    return (
-      days * SEC_IN_DAY + hour * SEC_IN_HOUR + minute * SEC_IN_MIN + second
-    );
+    return toMillseconds(days, hour, minute, second, millisecond);
   }
 
-  return Math.floor(Date.now() / 1000);
+  return Math.floor(Date.now());
 }
 
 // format(pattern: string, locale?: string) {

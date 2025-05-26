@@ -1,22 +1,29 @@
 import { DateZenInput } from '../core/types';
 import DateZen from '../core/DateZen';
-import { SEC_IN_DAY, SEC_IN_MIN, SEC_IN_HOUR } from '../core/config';
+import {
+  SEC_IN_DAY,
+  SEC_IN_MIN,
+  SEC_IN_HOUR,
+  MILLSEC_IN_SEC,
+} from '../core/config';
 
-type TimeUnit = 's' | 'm' | 'h' | 'd';
+type TimeUnit = 'ms' | 's' | 'm' | 'h' | 'd';
 
 /**
  * Converts milliseconds to the specified unit.
  */
-function convert(s: number, unit: TimeUnit): number {
+function convert(ms: number, unit: TimeUnit): number {
   switch (unit) {
     case 'm':
-      return Math.floor(s / SEC_IN_MIN);
+      return Math.floor(ms / (SEC_IN_MIN * MILLSEC_IN_SEC));
     case 'h':
-      return Math.floor(s / SEC_IN_HOUR);
+      return Math.floor(ms / (SEC_IN_HOUR * MILLSEC_IN_SEC));
     case 'd':
-      return Math.floor(s / SEC_IN_DAY);
+      return Math.floor(ms / (SEC_IN_DAY * MILLSEC_IN_SEC));
+    case 's':
+      return Math.floor(ms / MILLSEC_IN_SEC);
     default:
-      return s;
+      return ms;
   }
 }
 
@@ -26,39 +33,41 @@ function convert(s: number, unit: TimeUnit): number {
 function diff(
   a: DateZenInput | DateZen,
   b: DateZenInput | DateZen,
-  unit: TimeUnit | TimeUnit[] = 's'
+  unit: TimeUnit | TimeUnit[] = 'ms'
 ): number | Record<TimeUnit, number> {
   const dateA = a instanceof DateZen ? a : new DateZen(a);
   const dateB = b instanceof DateZen ? b : new DateZen(b);
 
-  let totalSeconds = Math.abs(+dateA - +dateB);
+  let totalMillseconds = Math.abs(+dateA - +dateB);
 
   if (Array.isArray(unit)) {
     const orderedUnits: [TimeUnit, number][] = unit
       .map((u): [TimeUnit, number] => {
         switch (u) {
           case 'd':
-            return ['d', SEC_IN_DAY];
+            return ['d', SEC_IN_DAY * MILLSEC_IN_SEC];
           case 'h':
-            return ['h', SEC_IN_HOUR];
+            return ['h', SEC_IN_HOUR * MILLSEC_IN_SEC];
           case 'm':
-            return ['m', SEC_IN_MIN];
+            return ['m', SEC_IN_MIN * MILLSEC_IN_SEC];
+          case 's':
+            return ['s', MILLSEC_IN_SEC];
           default:
-            return ['s', 1];
+            return ['ms', 1];
         }
       })
       .sort(([, secA], [, secB]) => secB - secA);
 
     const result: Record<TimeUnit, number> = {} as Record<TimeUnit, number>;
 
-    for (const [u, secondsInUnit] of orderedUnits) {
-      result[u] = Math.floor(totalSeconds / secondsInUnit);
-      totalSeconds %= secondsInUnit;
+    for (const [u, milsecondsInUnit] of orderedUnits) {
+      result[u] = Math.floor(totalMillseconds / milsecondsInUnit);
+      totalMillseconds %= milsecondsInUnit;
     }
 
     return result;
   } else {
-    return convert(totalSeconds, unit);
+    return convert(totalMillseconds, unit);
   }
 }
 
