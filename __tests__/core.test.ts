@@ -1,5 +1,5 @@
 import { describe, expect, test } from '@jest/globals';
-import DateZen from '@/core/DateZen.class';
+import DateZen from '@/core/DateZen';
 
 const TOTAL = 100;
 
@@ -14,19 +14,19 @@ describe('Core from 1970 to 2100', () => {
     .sort((a, b) => a - b)
     .map((timestamp) => [timestamp, new Date(timestamp).toISOString()]);
 
-  test.each(cases)('Timestamp: %i -> DateZen: %s', (timestamp) => {
-    const dateZen = new DateZen(timestamp);
-    const date = new Date(timestamp);
+  test.each(cases)('Timestamp: %i -> DateZen: %s', (...timestamp) => {
+    const milseconds = timestamp[0] as unknown as number;
+    const dateZen = new DateZen(Math.floor(milseconds / 1000));
+    const date = new Date(milseconds);
 
     expect({
-      yyyy: dateZen.getFullYear(),
-      mm: dateZen.getMonth(),
-      dd: dateZen.getDate(),
-      d: dateZen.getDay(),
-      h: dateZen.getHours(),
-      m: dateZen.getMinutes(),
-      s: dateZen.getSeconds(),
-      ms: dateZen.getMilliseconds(),
+      yyyy: dateZen.year(),
+      mm: dateZen.month(),
+      dd: dateZen.day(),
+      d: dateZen.weekday(),
+      h: dateZen.hours(),
+      m: dateZen.minutes(),
+      s: dateZen.seconds(),
     }).toEqual({
       yyyy: date.getUTCFullYear(),
       mm: date.getUTCMonth(),
@@ -35,7 +35,6 @@ describe('Core from 1970 to 2100', () => {
       h: date.getUTCHours(),
       m: date.getUTCMinutes(),
       s: date.getUTCSeconds(),
-      ms: date.getUTCMilliseconds(),
     });
   });
 });
@@ -52,19 +51,19 @@ describe('Core up to 2100', () => {
     .sort((a, b) => a - b)
     .map((timestamp) => [timestamp, new Date(timestamp).toISOString()]);
 
-  test.each(cases)('Timestamp: %i -> DateZen: %s', (timestamp) => {
-    const dateZen = new DateZen(timestamp);
-    const date = new Date(timestamp);
+  test.each(cases)('Timestamp: %i -> DateZen: %s', (...timestamp) => {
+    const milseconds = timestamp[0] as unknown as number;
+    const dateZen = new DateZen(Math.floor(milseconds / 1000));
+    const date = new Date(milseconds);
 
     expect({
-      yyyy: dateZen.getFullYear(),
-      mm: dateZen.getMonth(),
-      dd: dateZen.getDate(),
-      d: dateZen.getDay(),
-      h: dateZen.getHours(),
-      m: dateZen.getMinutes(),
-      s: dateZen.getSeconds(),
-      ms: dateZen.getMilliseconds(),
+      yyyy: dateZen.year(),
+      mm: dateZen.month(),
+      dd: dateZen.day(),
+      d: dateZen.weekday(),
+      h: dateZen.hours(),
+      m: dateZen.minutes(),
+      s: dateZen.seconds(),
     }).toEqual({
       yyyy: date.getUTCFullYear(),
       mm: date.getUTCMonth(),
@@ -73,7 +72,6 @@ describe('Core up to 2100', () => {
       h: date.getUTCHours(),
       m: date.getUTCMinutes(),
       s: date.getUTCSeconds(),
-      ms: date.getUTCMilliseconds(),
     });
   });
 });

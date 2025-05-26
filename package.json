@@ -1,21 +1,35 @@
 {
   "name": "datezen",
-  "version": "1.0.0",
+  "version": "0.1.0",
   "description": "An innovative library simplifying date handling in JavaScript.",
-  "type": "module",
-  "main": "dist/index.cjs",
-  "module": "dist/index.esm.js",
-  "types": "dist/index.d.ts",
+  "main": "dist/dz.cjs",
+  "module": "dist/dz.js",
+  "types": "dist/types/dz.d.ts",
+  "exports": {
+    ".": {
+      "import": "./dist/dz.js",
+      "require": "./dist/dz.cjs",
+      "types": "./dist/types/dz.d.ts"
+    },
+    "./utils": {
+      "import": "./dist/utils/index.js",
+      "require": "./dist/utils/index.cjs",
+      "types": "./dist/types/utils/index.d.ts"
+    }
+  },
   "files": [
     "dist"
   ],
   "scripts": {
+    "dev": "tsup --watch",
     "build": "tsup",
+    "clean": "rm -rf dist",
     "test": "jest",
     "ts-check": "tsc --noEmit",
     "lint": "eslint",
     "verify": "npm run lint && npm run ts-check",
     "format": "prettier --write 'src/**/*.{ts,tsx}'",
+    "tsx": "npx tsx src/index.ts",
     "prepare": "husky install"
   },
   "husky": {
