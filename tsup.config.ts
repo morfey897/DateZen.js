@@ -2,7 +2,7 @@
 import { defineConfig } from 'tsup';
 
 export default defineConfig({
-  entry: ['src/dz.ts', 'src/utils/index.ts'], // Entry file(s)
+  entry: ['src/index.ts', 'src/utility.ts'], // Entry file(s)
   format: ['cjs', 'esm'], // Output formats
   dts: true, // Generate TypeScript declarations
   sourcemap: true, // Generate source maps

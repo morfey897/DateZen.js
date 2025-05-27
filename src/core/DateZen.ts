@@ -1,23 +1,14 @@
 import {
-  WEEK,
   FIRST_DAY,
   FIRST_YEAR,
   LAST_YEAR,
-  SEC_IN_MIN,
-  SEC_IN_HOUR,
-  SEC_IN_DAY,
   LIST_OF_DAYS_IN_4_YEARS,
   DAYS_IN_YEAR_BY_MOTHES,
   DAYS_UP_TO_LAST_YEAR,
   LIST_OF_DAYS_IN_400_YEARS,
-  SEC_IN_WEEK,
-  MILLSEC_IN_SEC,
 } from './config';
-import { Parts, DateZenInput } from './types';
+import { Parts, DateZenInput } from '../types';
 import { binarySearch, isLeapYear, parseInput, toMillseconds } from './utils';
-import globalFormat from '../utils/format';
-import globalCompare from '../utils/compare';
-import globalDiff from '../utils/diff';
 
 class DateZen {
   // Timestamp in seconds since 01.01.1970 00:00:00 UTC
@@ -35,7 +26,7 @@ class DateZen {
   }
 
   private get totalDays() {
-    return Math.floor(this.ts / (SEC_IN_DAY * MILLSEC_IN_SEC));
+    return Math.floor(this.ts / (86_400 * 1_000));
   }
 
   private getMemo() {
@@ -85,7 +76,7 @@ class DateZen {
    * @returns {number} timestamp in seconds
    */
   toSeconds(): number {
-    return Math.floor(this.ts / MILLSEC_IN_SEC);
+    return Math.floor(this.ts / 1_000);
   }
 
   /**
@@ -93,7 +84,7 @@ class DateZen {
    * @returns {number} 0-999
    */
   millseconds(): number {
-    return this.ts % MILLSEC_IN_SEC;
+    return this.ts % 1_000;
   }
 
   /**
@@ -101,9 +92,7 @@ class DateZen {
    * @returns {number} 0-59
    */
   seconds(): number {
-    return Math.floor(
-      (this.ts % (SEC_IN_MIN * MILLSEC_IN_SEC)) / MILLSEC_IN_SEC
-    );
+    return Math.floor((this.ts % (60 * 1_000)) / 1_000);
   }
 
   /**
@@ -111,9 +100,7 @@ class DateZen {
    * @returns {number} 0-59
    */
   minutes(): number {
-    return Math.floor(
-      (this.ts % (SEC_IN_HOUR * MILLSEC_IN_SEC)) / (SEC_IN_MIN * MILLSEC_IN_SEC)
-    );
+    return Math.floor((this.ts % (3_600 * 1_000)) / (60 * 1_000));
   }
 
   /**
@@ -121,9 +108,7 @@ class DateZen {
    * @returns {number} 0-23
    */
   hours(): number {
-    return Math.floor(
-      (this.ts % (SEC_IN_DAY * MILLSEC_IN_SEC)) / (SEC_IN_HOUR * MILLSEC_IN_SEC)
-    );
+    return Math.floor((this.ts % (86_400 * 1_000)) / (3_600 * 1_000));
   }
 
   /**
@@ -139,7 +124,7 @@ class DateZen {
    * 6 - Saturday
    */
   weekday(): number {
-    return (((FIRST_DAY + this.totalDays) % WEEK) + WEEK) % WEEK;
+    return (((FIRST_DAY + this.totalDays) % 7) + 7) % 7;
   }
 
   /**
@@ -254,7 +239,7 @@ class DateZen {
     milliseconds?: number;
   }): DateZen {
     const totalSeconds =
-      weeks * SEC_IN_WEEK * MILLSEC_IN_SEC +
+      weeks * 7 * 86_400 * 1_000 +
       toMillseconds(days, hours, minutes, seconds, milliseconds);
     return new DateZen(this.ts + totalSeconds);
   }
@@ -265,42 +250,6 @@ class DateZen {
    */
   isInvalid(): boolean {
     return Number.isNaN(this.ts);
-  }
-
-  /**
-   * Format the date using a pattern
-   * @param {string} pattern - pattern to format the date
-   * @returns {string} formatted date
-   */
-  format(pattern: string): string {
-    return globalFormat(this.toParts(), pattern);
-  }
-
-  /**
-   * Compare the date with another date
-   * @param {DateZen | DateZenInput} other - date to compare with
-   * @returns {number} -1, 0, or 1
-   * @description
-   * -1 if this date is earlier than the other date,
-   * 0 if they are equal,
-   * 1 if this date is later than the other date.
-   */
-  compare(other: DateZen | DateZenInput): number {
-    return globalCompare(this, other);
-  }
-
-  /**
-   * Get the difference between two dates
-   * @param {DateZen | DateZenInput} other - date to compare with
-   * @returns {number | <TimeUnit, number>} difference in milliseconds
-   * @description
-   * Returns the difference in milliseconds between this date and the other date.
-   */
-  diff(
-    other: DateZen | DateZenInput,
-    unit: Parameters<typeof globalDiff>[2] = 'ms'
-  ): ReturnType<typeof globalDiff> {
-    return globalDiff(this, other, unit);
   }
 
   /**

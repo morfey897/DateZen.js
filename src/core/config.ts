@@ -5,15 +5,6 @@ export const FIRST_DAY = 4;
 export const FIRST_YEAR = 1970;
 export const LAST_YEAR = 2100;
 
-export const DAYS_IN_YEAR = 365;
-
-export const MILLSEC_IN_SEC = 1000;
-export const SEC_IN_MIN = 60;
-export const SEC_IN_HOUR = 60 * 60;
-export const SEC_IN_DAY = 60 * 60 * 24;
-export const SEC_IN_WEEK = 60 * 60 * 24 * 7;
-export const WEEK = 7;
-
 const joining = (days: number, index: number, arr: number[]) =>
   days + (index > 0 ? arr.slice(0, index).reduce((a, b) => a + b, 0) : 0);
 
@@ -21,7 +12,7 @@ export const LIST_OF_DAYS_IN_4_YEARS = [
   0,
   ...new Array(4).fill(undefined).map((_, index) => {
     const year = FIRST_YEAR + index;
-    return DAYS_IN_YEAR + Number(isLeapYear(year));
+    return 365 + Number(isLeapYear(year));
   }),
 ].map(joining);
 
@@ -29,7 +20,7 @@ export const LIST_OF_DAYS_IN_400_YEARS = [
   0,
   ...new Array(400).fill(undefined).map((_, index) => {
     const year = LAST_YEAR + index;
-    return DAYS_IN_YEAR + isLeapYear(year);
+    return 365 + isLeapYear(year);
   }),
 ].map(joining);
 

@@ -1,4 +1,4 @@
-import { DateZenInput, Parts } from '../core/types';
+import { DateZenInput, Parts } from '../types';
 import DateZen from '../core/DateZen';
 
 enum TU {

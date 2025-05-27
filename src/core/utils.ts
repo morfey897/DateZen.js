@@ -1,6 +1,5 @@
-import { DAYS_IN_YEAR_BY_MOTHES, DAYS_IN_YEAR, FIRST_YEAR } from './config';
-import { SEC_IN_DAY, SEC_IN_HOUR, SEC_IN_MIN, MILLSEC_IN_SEC } from './config';
-import { DateZenInput } from './types';
+import { DAYS_IN_YEAR_BY_MOTHES, FIRST_YEAR } from './config';
+import { DateZenInput } from '../types';
 
 const invalidInput = (
   y: number,
@@ -39,8 +38,7 @@ export const toMillseconds = (
   seconds: number,
   millisecond: number
 ): number =>
-  (days * SEC_IN_DAY + hours * SEC_IN_HOUR + minutes * SEC_IN_MIN + seconds) *
-    MILLSEC_IN_SEC +
+  (days * 86_400 + hours * 3_600 + minutes * 60 + seconds) * 1_000 +
   millisecond;
 
 export function binarySearch(target: number, mask: number[]): [number, number] {
@@ -82,7 +80,7 @@ export function calcDaysSinceEpoch(y: number, m: number, d: number): number {
   let days = 0;
 
   for (let year = FIRST_YEAR; year < y; year++) {
-    days += DAYS_IN_YEAR + isLeapYear(year);
+    days += 365 + isLeapYear(year);
   }
 
   const monthDays = DAYS_IN_YEAR_BY_MOTHES[isLeapYear(y)];
@@ -102,7 +100,7 @@ export function parseISOString(input: string): number {
   if (!match) return NaN;
 
   const [, y, m, d, hh, mm, ss, ms] = match.map(Number);
-  const millsec = Number.isFinite(ms) ? ms * MILLSEC_IN_SEC : 0;
+  const millsec = Number.isFinite(ms) ? ms * 1_000 : 0;
   if (invalidInput(y, m, d, hh, mm, ss, millsec)) return NaN;
   const days = calcDaysSinceEpoch(y, m, d);
   return toMillseconds(days, hh, mm, ss, millsec);
@@ -126,20 +124,14 @@ export function parseInput(input?: DateZenInput): number {
       case 'ms':
         return Number.isFinite(value) ? Math.floor(value) : NaN;
       case 's':
-        return Number.isFinite(value)
-          ? Math.floor(value * MILLSEC_IN_SEC)
-          : NaN;
+        return Number.isFinite(value) ? Math.floor(value * 1_000) : NaN;
       case 'm':
-        return Number.isFinite(value)
-          ? Math.floor(value * SEC_IN_MIN * MILLSEC_IN_SEC)
-          : NaN;
+        return Number.isFinite(value) ? Math.floor(value * 60 * 1_000) : NaN;
       case 'h':
-        return Number.isFinite(value)
-          ? Math.floor(value * SEC_IN_HOUR * MILLSEC_IN_SEC)
-          : NaN;
+        return Number.isFinite(value) ? Math.floor(value * 3_600 * 1_000) : NaN;
       case 'd':
         return Number.isFinite(value)
-          ? Math.floor(value * SEC_IN_DAY * MILLSEC_IN_SEC)
+          ? Math.floor(value * 86_400 * 1_000)
           : NaN;
       default:
         return NaN;

@@ -1,11 +1,5 @@
-import { DateZenInput } from '../core/types';
+import { DateZenInput } from '../types';
 import DateZen from '../core/DateZen';
-import {
-  SEC_IN_DAY,
-  SEC_IN_MIN,
-  SEC_IN_HOUR,
-  MILLSEC_IN_SEC,
-} from '../core/config';
 
 type TimeUnit = 'ms' | 's' | 'm' | 'h' | 'd';
 
@@ -15,13 +9,13 @@ type TimeUnit = 'ms' | 's' | 'm' | 'h' | 'd';
 function convert(ms: number, unit: TimeUnit): number {
   switch (unit) {
     case 'm':
-      return Math.floor(ms / (SEC_IN_MIN * MILLSEC_IN_SEC));
+      return Math.floor(ms / (60 * 1_000));
     case 'h':
-      return Math.floor(ms / (SEC_IN_HOUR * MILLSEC_IN_SEC));
+      return Math.floor(ms / (3_600 * 1_000));
     case 'd':
-      return Math.floor(ms / (SEC_IN_DAY * MILLSEC_IN_SEC));
+      return Math.floor(ms / (86_400 * 1_000));
     case 's':
-      return Math.floor(ms / MILLSEC_IN_SEC);
+      return Math.floor(ms / 1_000);
     default:
       return ms;
   }
@@ -45,13 +39,13 @@ function diff(
       .map((u): [TimeUnit, number] => {
         switch (u) {
           case 'd':
-            return ['d', SEC_IN_DAY * MILLSEC_IN_SEC];
+            return ['d', 86_400 * 1_000];
           case 'h':
-            return ['h', SEC_IN_HOUR * MILLSEC_IN_SEC];
+            return ['h', 3_600 * 1_000];
           case 'm':
-            return ['m', SEC_IN_MIN * MILLSEC_IN_SEC];
+            return ['m', 60 * 1_000];
           case 's':
-            return ['s', MILLSEC_IN_SEC];
+            return ['s', 1_000];
           default:
             return ['ms', 1];
         }

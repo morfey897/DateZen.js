@@ -1,4 +1,4 @@
-import { DateZenInput } from '../core/types';
+import { DateZenInput } from '../types';
 import DateZen from '../core/DateZen';
 
 /**

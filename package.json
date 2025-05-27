@@ -2,21 +2,20 @@
   "name": "datezen",
   "version": "0.1.0",
   "description": "An innovative library simplifying date handling in JavaScript.",
-  "main": "dist/dz.cjs",
-  "module": "dist/dz.js",
-  "types": "dist/types/dz.d.ts",
+  "main": "dist/index.cjs",
+  "module": "dist/index.js",
+  "types": "./dist/types/index.d.ts",
   "exports": {
     ".": {
-      "import": "./dist/dz.js",
-      "require": "./dist/dz.cjs",
-      "types": "./dist/types/dz.d.ts"
+      "import": "./dist/index.js",
+      "require": "./dist/index.cjs"
     },
     "./utils": {
-      "import": "./dist/utils/index.js",
-      "require": "./dist/utils/index.cjs",
-      "types": "./dist/types/utils/index.d.ts"
+      "import": "./dist/utility.js",
+      "require": "./dist/utility.cjs"
     }
   },
+  "sideEffects": false,
   "files": [
     "dist"
   ],
