@@ -15,7 +15,6 @@ function compare(
   const dateB = b instanceof DateZen ? b : new DateZen(b);
 
   const diff = +dateA - +dateB;
-  console.log(a, b, diff);
   return Math.sign(diff) as -1 | 0 | 1;
 }
 

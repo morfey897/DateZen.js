@@ -15,6 +15,9 @@ import {
 } from './config';
 import { Parts, DateZenInput } from './types';
 import { binarySearch, isLeapYear, parseInput, toMillseconds } from './utils';
+import globalFormat from '../utils/format';
+import globalCompare from '../utils/compare';
+import globalDiff from '../utils/diff';
 
 class DateZen {
   // Timestamp in seconds since 01.01.1970 00:00:00 UTC
@@ -264,7 +267,41 @@ class DateZen {
     return Number.isNaN(this.ts);
   }
 
-  format() {}
+  /**
+   * Format the date using a pattern
+   * @param {string} pattern - pattern to format the date
+   * @returns {string} formatted date
+   */
+  format(pattern: string): string {
+    return globalFormat(this.toParts(), pattern);
+  }
+
+  /**
+   * Compare the date with another date
+   * @param {DateZen | DateZenInput} other - date to compare with
+   * @returns {number} -1, 0, or 1
+   * @description
+   * -1 if this date is earlier than the other date,
+   * 0 if they are equal,
+   * 1 if this date is later than the other date.
+   */
+  compare(other: DateZen | DateZenInput): number {
+    return globalCompare(this, other);
+  }
+
+  /**
+   * Get the difference between two dates
+   * @param {DateZen | DateZenInput} other - date to compare with
+   * @returns {number | <TimeUnit, number>} difference in milliseconds
+   * @description
+   * Returns the difference in milliseconds between this date and the other date.
+   */
+  diff(
+    other: DateZen | DateZenInput,
+    unit: Parameters<typeof globalDiff>[2] = 'ms'
+  ): ReturnType<typeof globalDiff> {
+    return globalDiff(this, other, unit);
+  }
 
   /**
    * Interpret the date as a string

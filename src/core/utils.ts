@@ -2,6 +2,36 @@ import { DAYS_IN_YEAR_BY_MOTHES, DAYS_IN_YEAR, FIRST_YEAR } from './config';
 import { SEC_IN_DAY, SEC_IN_HOUR, SEC_IN_MIN, MILLSEC_IN_SEC } from './config';
 import { DateZenInput } from './types';
 
+const invalidInput = (
+  y: number,
+  m: number,
+  d: number,
+  hh: number,
+  mm: number,
+  ss: number,
+  ms: number
+) =>
+  // Check validation hh
+  hh < 0 ||
+  hh > 23 ||
+  // Check validation mm
+  mm < 0 ||
+  mm > 59 ||
+  // Check validation ss
+  ss < 0 ||
+  ss > 59 ||
+  // Check validation ms
+  ms < 0 ||
+  ms > 999 ||
+  // Check validation m
+  m < 1 ||
+  m > 12 ||
+  // Check validation d
+  d < 1 ||
+  d > DAYS_IN_YEAR_BY_MOTHES[isLeapYear(y)][m] ||
+  // Check validation y
+  y < 0;
+
 export const toMillseconds = (
   days: number,
   hours: number,
@@ -72,14 +102,10 @@ export function parseISOString(input: string): number {
   if (!match) return NaN;
 
   const [, y, m, d, hh, mm, ss, ms] = match.map(Number);
+  const millsec = Number.isFinite(ms) ? ms * MILLSEC_IN_SEC : 0;
+  if (invalidInput(y, m, d, hh, mm, ss, millsec)) return NaN;
   const days = calcDaysSinceEpoch(y, m, d);
-  return toMillseconds(
-    days,
-    hh,
-    mm,
-    ss,
-    Number.isFinite(ms) ? ms * MILLSEC_IN_SEC : 0
-  );
+  return toMillseconds(days, hh, mm, ss, millsec);
 }
 
 export function parseInput(input?: DateZenInput): number {
@@ -128,108 +154,24 @@ export function parseInput(input?: DateZenInput): number {
     'day' in input
   ) {
     const {
-      year,
-      month,
-      day,
-      hour = 0,
-      minute = 0,
-      second = 0,
-      millisecond = 0,
+      year: y,
+      month: m,
+      day: d,
+      hour: hh = 0,
+      minute: mm = 0,
+      second: ss = 0,
+      millisecond: millsec = 0,
     } = input;
 
-    const allAreNumbers = [
-      year,
-      month,
-      day,
-      hour,
-      minute,
-      second,
-      millisecond,
-    ].every((v) => Number.isFinite(v));
+    const allAreNumbers = [y, m, d, hh, mm, ss, millsec].every((v) =>
+      Number.isFinite(v)
+    );
 
-    if (!allAreNumbers) {
-      return NaN;
-    }
-    const days = calcDaysSinceEpoch(year, month, day);
-    return toMillseconds(days, hour, minute, second, millisecond);
+    if (!allAreNumbers) return NaN;
+    if (invalidInput(y, m, d, hh, mm, ss, millsec)) return NaN;
+    const days = calcDaysSinceEpoch(y, m, d);
+    return toMillseconds(days, hh, mm, ss, millsec);
   }
 
   return Math.floor(Date.now());
 }
-
-// format(pattern: string, locale?: string) {
-//   console.log(pattern);
-//   const match = pattern.match(
-//     /(?<!\\)(Y{1,4}|M{1,4}|D{1,4}|d{1,4}|h{1,2}|m{1,2}|s{1,2})/g
-//   );
-
-//   if (!match) return pattern;
-
-//   const memoize = new Map<string, string>();
-
-//   match
-//     .sort((a, b) => {
-//       return b.length - a.length;
-//     })
-//     .forEach((item) => {
-//       if (memoize.has(item)) {
-//         pattern = pattern.replace(item, memoize.get(item) as string);
-//         return;
-//       }
-
-//       if (item.startsWith('Y')) {
-//         const year = this.getFullYear().toString();
-//         memoize.set('YYYY', year);
-//         memoize.set('YY', year.padStart(2, '0'));
-//       } else if (item.startsWith('M')) {
-//         const month = this.getMonth().toString();
-//         memoize.set('MM', month.padStart(2, '0'));
-//         memoize.set('M', month);
-//       } else if (item.startsWith('D')) {
-//         const day = this.getDate().toString();
-//         memoize.set('DD', day.padStart(2, '0'));
-//         memoize.set('D', day);
-//       } else if (item.startsWith('h')) {
-//         const hour = this.getHours().toString();
-//         memoize.set('hh', hour.padStart(2, '0'));
-//         memoize.set('h', hour);
-//       } else if (item.startsWith('m')) {
-//         const minute = this.getMinutes().toString();
-//         memoize.set('mm', minute.padStart(2, '0'));
-//         memoize.set('m', minute);
-//       } else if (item.startsWith('s')) {
-//         const second = this.getSeconds().toString();
-//         memoize.set('ss', second.padStart(2, '0'));
-//         memoize.set('s', second);
-//       } else if (item.startsWith('d')) {
-//         const WEEKDAYS: Record<
-//           string,
-//           'long' | 'short' | 'narrow' | 'custom'
-//         > = {
-//           dddd: 'long',
-//           ddd: 'custom',
-//           dd: 'short',
-//           d: 'narrow',
-//         };
-//         const weekday = WEEKDAYS[item];
-//         if (weekday === 'custom') {
-//           const day = this.getDay().toString();
-//           memoize.set(item, day);
-//         } else {
-//           const day = new Intl.DateTimeFormat(locale, {
-//             weekday: weekday,
-//             timeZone: 'UTC',
-//           }).format(new Date(this.timestamp * 1000));
-//           memoize.set(item, day);
-//         }
-//       } else {
-//         return;
-//       }
-
-//       pattern = pattern.replace(item, memoize.get(item) as string);
-//     });
-
-//   pattern = pattern.replace(/\\([YMDhms])/g, '$1');
-//   console.log(pattern);
-//   return pattern;
-// }
