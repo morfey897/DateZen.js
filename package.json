@@ -10,9 +10,17 @@
       "import": "./dist/index.js",
       "require": "./dist/index.cjs"
     },
-    "./utils": {
-      "import": "./dist/utility.js",
-      "require": "./dist/utility.cjs"
+    "./format": {
+      "import": "./dist/format.js",
+      "require": "./dist/format.cjs"
+    },
+    "./compare": {
+      "import": "./dist/compare.js",
+      "require": "./dist/compare.cjs"
+    },
+    "./diff": {
+      "import": "./dist/diff.js",
+      "require": "./dist/diff.cjs"
     }
   },
   "sideEffects": false,
