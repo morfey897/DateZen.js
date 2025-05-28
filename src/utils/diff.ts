@@ -1,7 +1,4 @@
-import { DateZenInput } from '../types';
-import DateZen from '../core/DateZen';
-
-type TimeUnit = 'ms' | 's' | 'm' | 'h' | 'd';
+import { NumericLike, TimeUnit } from './types';
 
 /**
  * Converts milliseconds to the specified unit.
@@ -25,13 +22,10 @@ function convert(ms: number, unit: TimeUnit): number {
  * Returns the difference between two DateZen instances in the specified unit(s).
  */
 function diff(
-  a: DateZenInput | DateZen,
-  b: DateZenInput | DateZen,
+  dateA: NumericLike,
+  dateB: NumericLike,
   unit: TimeUnit | TimeUnit[] = 'ms'
 ): number | Record<TimeUnit, number> {
-  const dateA = a instanceof DateZen ? a : new DateZen(a);
-  const dateB = b instanceof DateZen ? b : new DateZen(b);
-
   let totalMillseconds = Math.abs(+dateA - +dateB);
 
   if (Array.isArray(unit)) {
@@ -60,9 +54,8 @@ function diff(
     }
 
     return result;
-  } else {
-    return convert(totalMillseconds, unit);
   }
+  return convert(totalMillseconds, unit);
 }
 
 export default diff;

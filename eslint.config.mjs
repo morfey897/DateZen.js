@@ -18,10 +18,13 @@ export default [
       'eslint.config.{ts,js,mjs,cjs}',
       'tsup.config.{ts,js,mjs,cjs}',
       'jest.config.{ts,js,mjs,cjs}',
+      'strip-comments-plugin.js',
+      '__tests__/*',
+      '__tests__/**/*',
     ],
   },
   {
-    files: ['*.{js,ts}'],
+    files: ['**/*.{js,ts}'],
     languageOptions: {
       parser: tsParser,
       parserOptions: {
@@ -30,9 +33,18 @@ export default [
       ecmaVersion: 'latest',
       sourceType: 'module',
       globals: {
-        ...globals.browser,
-        ...globals.node,
-        ...jestPlugin.environments.globals,
+        ...Object.fromEntries(
+          Object.entries(globals.browser).map(([key, _]) => [key, 'readonly'])
+        ),
+        ...Object.fromEntries(
+          Object.entries(globals.node).map(([key, _]) => [key, 'readonly'])
+        ),
+        ...Object.fromEntries(
+          Object.entries(jestPlugin.environments.globals).map(([key, _]) => [
+            key,
+            'readonly',
+          ])
+        ),
         process: 'readonly',
         NodeJS: 'readonly',
       },

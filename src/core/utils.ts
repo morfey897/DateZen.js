@@ -1,5 +1,5 @@
 import { DAYS_IN_YEAR_BY_MOTHES, FIRST_YEAR } from './config';
-import { DateZenInput } from '../types';
+import { DateZenInput } from './types';
 
 const invalidInput = (
   y: number,
@@ -142,18 +142,26 @@ export function parseInput(input?: DateZenInput): number {
     input &&
     typeof input === 'object' &&
     'year' in input &&
-    'month' in input &&
+    ('month' in input || 'monthIndex' in input) &&
     'day' in input
   ) {
     const {
       year: y,
-      month: m,
       day: d,
       hour: hh = 0,
       minute: mm = 0,
       second: ss = 0,
       millisecond: millsec = 0,
     } = input;
+
+    let m: number;
+    if ('monthIndex' in input && typeof input.monthIndex === 'number') {
+      m = input.monthIndex + 1;
+    } else if ('month' in input && typeof input.month === 'number') {
+      m = input.month;
+    } else {
+      m = NaN;
+    }
 
     const allAreNumbers = [y, m, d, hh, mm, ss, millsec].every((v) =>
       Number.isFinite(v)

@@ -1,5 +1,5 @@
 import { describe, expect, test } from '@jest/globals';
-import DateZen from '@/core/DateZen';
+import DateZen from '@/core/DateZen.class';
 
 const TOTAL = 100;
 
@@ -22,6 +22,7 @@ describe('Core from 1970 to 2100', () => {
     expect({
       yyyy: dateZen.year(),
       mm: dateZen.month(),
+      mmIndex: dateZen.monthIndex(),
       dd: dateZen.day(),
       d: dateZen.weekday(),
       h: dateZen.hours(),
@@ -30,7 +31,8 @@ describe('Core from 1970 to 2100', () => {
       ms: dateZen.millseconds(),
     }).toEqual({
       yyyy: date.getUTCFullYear(),
-      mm: date.getUTCMonth(),
+      mm: date.getUTCMonth() + 1,
+      mmIndex: date.getUTCMonth(),
       dd: date.getUTCDate(),
       d: date.getUTCDay(),
       h: date.getUTCHours(),
@@ -61,6 +63,7 @@ describe('Core up to 2100', () => {
     expect({
       yyyy: dateZen.year(),
       mm: dateZen.month(),
+      mmIndex: dateZen.monthIndex(),
       dd: dateZen.day(),
       d: dateZen.weekday(),
       h: dateZen.hours(),
@@ -69,7 +72,8 @@ describe('Core up to 2100', () => {
       ms: dateZen.millseconds(),
     }).toEqual({
       yyyy: date.getUTCFullYear(),
-      mm: date.getUTCMonth(),
+      mm: date.getUTCMonth() + 1,
+      mmIndex: date.getUTCMonth(),
       dd: date.getUTCDate(),
       d: date.getUTCDay(),
       h: date.getUTCHours(),

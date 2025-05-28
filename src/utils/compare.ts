@@ -1,21 +1,26 @@
-import { DateZenInput } from '../types';
-import DateZen from '../core/DateZen';
-
+import { NumericLike } from './types';
 /**
  * Compares two values as DateZen objects and returns:
  * -1 if a < b
  *  0 if a === b
  *  1 if a > b
  */
-function compare(
-  a: DateZenInput | DateZen,
-  b: DateZenInput | DateZen
-): -1 | 0 | 1 {
-  const dateA = a instanceof DateZen ? a : new DateZen(a);
-  const dateB = b instanceof DateZen ? b : new DateZen(b);
+function compare(dateA: NumericLike, dateB: NumericLike): -1 | 0 | 1 {
+  // const dateA = a instanceof DateZen ? a : new DateZen(a);
+  // const dateB = b instanceof DateZen ? b : new DateZen(b);
 
   const diff = +dateA - +dateB;
-  return Math.sign(diff) as -1 | 0 | 1;
+  if (isNaN(diff)) {
+    throw new TypeError('Cannot compare invalid DateZen instances');
+  }
+  if (!isFinite(diff)) {
+    throw new RangeError(
+      'Cannot compare DateZen instances with infinite values'
+    );
+  }
+  if (diff < 0) return -1;
+  if (diff > 0) return 1;
+  return 0;
 }
 
 export default compare;

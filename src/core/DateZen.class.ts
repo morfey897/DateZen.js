@@ -7,11 +7,10 @@ import {
   DAYS_UP_TO_LAST_YEAR,
   LIST_OF_DAYS_IN_400_YEARS,
 } from './config';
-import { Parts, DateZenInput } from '../types';
+import { Parts, DateZenInput } from './types';
 import { binarySearch, isLeapYear, parseInput, toMillseconds } from './utils';
 
 class DateZen {
-  // Timestamp in seconds since 01.01.1970 00:00:00 UTC
   private ts: number = NaN;
 
   private _memo?: {
@@ -114,14 +113,7 @@ class DateZen {
   /**
    * Day of the week (0-6)
    * @returns {number} 0-6
-   * @description
-   * 0 - Sunday
-   * 1 - Monday
-   * 2 - Tuesday
-   * 3 - Wednesday
-   * 4 - Thursday
-   * 5 - Friday
-   * 6 - Saturday
+   * @description 0 - Sunday, 1 - Monday, ..., 6 - Saturday
    */
   weekday(): number {
     return (((FIRST_DAY + this.totalDays) % 7) + 7) % 7;
@@ -133,7 +125,6 @@ class DateZen {
    */
   year(): number {
     const { year } = this.getMemo();
-
     return year;
   }
 
@@ -141,23 +132,21 @@ class DateZen {
    * Month of the year (0-11)
    * @returns {number} 0-11
    * @description
-   * 0 - January
-   * 1 - February
-   * 2 - March
-   * 3 - April
-   * 4 - May
-   * 5 - June
-   * 6 - July
-   * 7 - August
-   * 8 - September
-   * 9 - October
-   * 10 - November
-   * 11 - December
+   * 0 - January, 1 - February, ... 11 - December
+   */
+  monthIndex(): number {
+    const { month } = this.getMemo();
+    return month;
+  }
+
+  /**
+   * Month of the year (1-12)
+   * @returns {number} 1-12
+   * @description
+   * 1 - January, 2 - February, ... 12 - December
    */
   month(): number {
-    const { month } = this.getMemo();
-
-    return month;
+    return this.monthIndex() + 1; // Convert to 1-12 range
   }
 
   /**
@@ -166,28 +155,18 @@ class DateZen {
    */
   day(): number {
     const { day } = this.getMemo();
-
     return day;
   }
 
   /**
    * Get the date as an object
-   * @returns {object} { year, month, day, hour, minute, second }
-   * @description
-   * {
-   *  year: from 1970 to ...,
-   *  month: 0-11,
-   *  day: 1-31,
-   *  hour: 0-23,
-   *  minute: 0-59,
-   *  second: 0-59,
-   *  weekday: 0-6
-   * }
+   * @returns {object} { year, month, monthIndex, day, hour, minute, second }
    */
   toParts(): Parts {
     return {
       year: this.year(),
       month: this.month(),
+      monthIndex: this.monthIndex(),
       day: this.day(),
       hour: this.hours(),
       minute: this.minutes(),
@@ -207,7 +186,7 @@ class DateZen {
     const { year, month, day, hour, minute, second, millisecond } =
       this.toParts();
 
-    const mm = String(month + 1).padStart(2, '0');
+    const mm = String(month).padStart(2, '0');
     const dd = String(day).padStart(2, '0');
     const HH = String(hour).padStart(2, '0');
     const MM = String(minute).padStart(2, '0');
@@ -242,6 +221,31 @@ class DateZen {
       weeks * 7 * 86_400 * 1_000 +
       toMillseconds(days, hours, minutes, seconds, milliseconds);
     return new DateZen(this.ts + totalSeconds);
+  }
+
+  /**
+   * Subtract time from the current date and return a new DateZen instance
+   * @returns {DateZen}
+   */
+  subtract({
+    weeks = 0,
+    days = 0,
+    hours = 0,
+    minutes = 0,
+    seconds = 0,
+    milliseconds = 0,
+  }: {
+    weeks?: number;
+    days?: number;
+    hours?: number;
+    minutes?: number;
+    seconds?: number;
+    milliseconds?: number;
+  }): DateZen {
+    const totalSeconds =
+      weeks * 7 * 86_400 * 1_000 +
+      toMillseconds(days, hours, minutes, seconds, milliseconds);
+    return new DateZen(this.ts - totalSeconds);
   }
 
   /**
