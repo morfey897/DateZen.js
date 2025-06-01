@@ -1,4 +1,4 @@
-import { DAYS_IN_YEAR_BY_MOTHES, FIRST_YEAR } from './config';
+import { MONTHS, FIRST_YEAR } from './config';
 import { DateZenInput } from './types';
 
 const invalidInput = (
@@ -27,9 +27,18 @@ const invalidInput = (
   m > 12 ||
   // Check validation d
   d < 1 ||
-  d > DAYS_IN_YEAR_BY_MOTHES[isLeapYear(y)][m] ||
+  d > MONTHS[isLeapYear(y)][m - 1] ||
   // Check validation y
   y < 0;
+
+export const joining = (days: number, index: number, arr: number[]) =>
+  days + (index > 0 ? arr.slice(0, index).reduce((a, b) => a + b, 0) : 0);
+
+export const mod = (n: number, m: number) => ((n % m) + m) % m;
+export const floor = (n: number) => {
+  if (n % 1 === 0) return n;
+  return n >= 0 ? Math.trunc(n) : Math.trunc(n - 1);
+};
 
 export const toMillseconds = (
   days: number,
@@ -37,22 +46,33 @@ export const toMillseconds = (
   minutes: number,
   seconds: number,
   millisecond: number
-): number =>
-  (days * 86_400 + hours * 3_600 + minutes * 60 + seconds) * 1_000 +
-  millisecond;
+): number => {
+  return (
+    (days * 86_400 + hours * 3_600 + minutes * 60 + seconds) * 1_000 +
+    millisecond
+  );
+};
 
-export function binarySearch(target: number, mask: number[]): [number, number] {
+export function binarySearch(
+  target: number,
+  mask: number[],
+  back: boolean = false
+): [number, number] {
   if (Number.isNaN(target)) return [NaN, NaN];
   let left = 0;
   let right = mask.length - 1;
 
   do {
     const mid = Math.floor((left + right) / 2);
-    if (target >= mask[mid] && target < mask[mid + 1]) {
+    if (
+      (target > mask[mid] && target < mask[mid + 1]) ||
+      (!back && target === mask[mid]) ||
+      (back && target === mask[mid + 1])
+    ) {
       return [mid, target - mask[mid]];
     }
 
-    if (mask[mid] > target) {
+    if (mask[mid] > target || (back && mask[mid] === target)) {
       right = mid - 1;
     } else {
       left = mid + 1;
@@ -62,10 +82,8 @@ export function binarySearch(target: number, mask: number[]): [number, number] {
   return [NaN, NaN];
 }
 
-export function isLeapYear(year: number): 0 | 1 {
-  return Number((year % 4 === 0 && year % 100 !== 0) || year % 400 === 0) as
-    | 0
-    | 1;
+export function isLeapYear(year: number): number {
+  return +((year % 4 === 0 && year % 100 !== 0) || year % 400 === 0);
 }
 
 // TODO for format
@@ -78,32 +96,50 @@ export function patternMatch(pattern: string) {
 
 export function calcDaysSinceEpoch(y: number, m: number, d: number): number {
   let days = 0;
-
-  for (let year = FIRST_YEAR; year < y; year++) {
-    days += 365 + isLeapYear(year);
+  const monthDays = MONTHS[isLeapYear(y)];
+  if (y >= FIRST_YEAR) {
+    for (let year = FIRST_YEAR; year < y; year++) {
+      days = days + (365 + isLeapYear(year));
+    }
+    for (let i = 0; i < m - 1; i++) {
+      days = days + monthDays[i];
+    }
+    return days + (d - 1);
   }
-
-  const monthDays = DAYS_IN_YEAR_BY_MOTHES[isLeapYear(y)];
-  for (let i = 0; i < m - 1; i++) {
-    days += monthDays[i + 1] - monthDays[i];
+  for (let year = y + 1; year < FIRST_YEAR; year++) {
+    days = days - (365 + isLeapYear(year));
   }
-
-  days += d - 1;
-
-  return days;
+  for (let i = 11; i > m - 1; i--) {
+    days = days - monthDays[i];
+  }
+  return days - (monthDays[m - 1] - d + 1);
 }
 
-export function parseISOString(input: string): number {
+export function ISOtoDateString(input: string) {
   const match = input.match(
     /^(\d{4})-(\d{2})-(\d{2})[T ](\d{2}):(\d{2}):(\d{2})(\.\d+)?(?:Z)?$/
   );
-  if (!match) return NaN;
-
+  if (!match) return null;
   const [, y, m, d, hh, mm, ss, ms] = match.map(Number);
   const millsec = Number.isFinite(ms) ? ms * 1_000 : 0;
-  if (invalidInput(y, m, d, hh, mm, ss, millsec)) return NaN;
+  return {
+    y,
+    m,
+    d,
+    hh,
+    mm,
+    ss,
+    ms: millsec,
+  };
+}
+
+export function parseISOString(input: string): number {
+  const data = ISOtoDateString(input);
+  if (!data) return NaN;
+  const { y, m, d, hh, mm, ss, ms } = data;
+  if (invalidInput(y, m, d, hh, mm, ss, ms)) return NaN;
   const days = calcDaysSinceEpoch(y, m, d);
-  return toMillseconds(days, hh, mm, ss, millsec);
+  return toMillseconds(days, hh, mm, ss, ms);
 }
 
 export function parseInput(input?: DateZenInput): number {
@@ -126,13 +162,11 @@ export function parseInput(input?: DateZenInput): number {
       case 's':
         return Number.isFinite(value) ? Math.floor(value * 1_000) : NaN;
       case 'm':
-        return Number.isFinite(value) ? Math.floor(value * 60 * 1_000) : NaN;
+        return Number.isFinite(value) ? Math.floor(value * 60_000) : NaN;
       case 'h':
-        return Number.isFinite(value) ? Math.floor(value * 3_600 * 1_000) : NaN;
+        return Number.isFinite(value) ? Math.floor(value * 3_600_000) : NaN;
       case 'd':
-        return Number.isFinite(value)
-          ? Math.floor(value * 86_400 * 1_000)
-          : NaN;
+        return Number.isFinite(value) ? Math.floor(value * 86_400_000) : NaN;
       default:
         return NaN;
     }

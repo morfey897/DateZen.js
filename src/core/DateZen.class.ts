@@ -3,12 +3,21 @@ import {
   FIRST_YEAR,
   LAST_YEAR,
   LIST_OF_DAYS_IN_4_YEARS,
-  DAYS_IN_YEAR_BY_MOTHES,
+  MONTHS,
   DAYS_UP_TO_LAST_YEAR,
   LIST_OF_DAYS_IN_400_YEARS,
+  LIST_OF_DAYS_BEFORE_1970,
 } from './config';
 import { Parts, DateZenInput } from './types';
-import { binarySearch, isLeapYear, parseInput, toMillseconds } from './utils';
+import {
+  binarySearch,
+  isLeapYear,
+  parseInput,
+  toMillseconds,
+  mod,
+  floor,
+  joining,
+} from './utils';
 
 class DateZen {
   private ts: number = NaN;
@@ -17,7 +26,7 @@ class DateZen {
     month: number;
     day: number;
     year: number;
-    isLeap: 0 | 1;
+    isLeap: number;
   };
 
   constructor(input?: DateZenInput) {
@@ -25,41 +34,62 @@ class DateZen {
   }
 
   private get totalDays() {
-    return Math.floor(this.ts / (86_400 * 1_000));
+    return floor(this.ts / 86_400_000);
   }
 
   private getMemo() {
     if (this._memo) return this._memo;
-    let totalDays = this.totalDays;
 
+    let totalDays = this.totalDays;
     let baseYear = 0;
     let LIST;
-    if (totalDays >= DAYS_UP_TO_LAST_YEAR) {
-      totalDays = totalDays - DAYS_UP_TO_LAST_YEAR;
-      LIST = LIST_OF_DAYS_IN_400_YEARS;
-      baseYear = LAST_YEAR;
-    } else {
-      LIST = LIST_OF_DAYS_IN_4_YEARS;
-      baseYear = FIRST_YEAR;
+
+    if (totalDays >= 0) {
+      if (totalDays >= DAYS_UP_TO_LAST_YEAR) {
+        totalDays -= DAYS_UP_TO_LAST_YEAR;
+        LIST = LIST_OF_DAYS_IN_400_YEARS;
+        baseYear = LAST_YEAR;
+      } else {
+        LIST = LIST_OF_DAYS_IN_4_YEARS;
+        baseYear = FIRST_YEAR;
+      }
+      const size = LIST.length - 1;
+      const lastValue = LIST[size];
+      const [yearIndex, restDays] = binarySearch(totalDays % lastValue, LIST);
+      const year =
+        baseYear + yearIndex + Math.floor(totalDays / lastValue) * size;
+      const isLeap = isLeapYear(year);
+
+      const [month, day] = binarySearch(
+        restDays,
+        [0, ...MONTHS[isLeap]].map(joining)
+      );
+      return (this._memo = { year, month, day: day + 1, isLeap });
     }
+    const absDays = -totalDays;
+
+    baseYear = FIRST_YEAR - 1;
+    LIST = LIST_OF_DAYS_BEFORE_1970;
+
     const size = LIST.length - 1;
     const lastValue = LIST[size];
-
-    const [yearIndex, restDays] = binarySearch(totalDays % lastValue, LIST);
-
-    const year =
-      baseYear + yearIndex + Math.floor(totalDays / lastValue) * size;
+    const [yearIndex, restDays] = binarySearch(absDays % lastValue, LIST, true);
+    const year = baseYear - yearIndex - Math.floor(absDays / lastValue) * size;
 
     const isLeap = isLeapYear(year);
+    const [month, day] = binarySearch(
+      restDays,
+      [...MONTHS[isLeap], 0].reverse().map(joining),
+      true
+    );
 
-    const [month, day] = binarySearch(restDays, DAYS_IN_YEAR_BY_MOTHES[isLeap]);
-    this._memo = {
+    const m = 11 - month;
+    return (this._memo = {
       year,
-      month,
-      day: day + 1,
+      month: m,
+      day: MONTHS[isLeap][m] - day + 1,
       isLeap,
-    };
-    return this._memo;
+    });
   }
 
   /**
@@ -83,7 +113,7 @@ class DateZen {
    * @returns {number} 0-999
    */
   millseconds(): number {
-    return this.ts % 1_000;
+    return mod(this.ts, 1_000);
   }
 
   /**
@@ -91,7 +121,7 @@ class DateZen {
    * @returns {number} 0-59
    */
   seconds(): number {
-    return Math.floor((this.ts % (60 * 1_000)) / 1_000);
+    return Math.floor(mod(this.ts, 60_000) / 1_000);
   }
 
   /**
@@ -99,7 +129,7 @@ class DateZen {
    * @returns {number} 0-59
    */
   minutes(): number {
-    return Math.floor((this.ts % (3_600 * 1_000)) / (60 * 1_000));
+    return Math.floor(mod(this.ts, 3_600_000) / 60_000);
   }
 
   /**
@@ -107,7 +137,7 @@ class DateZen {
    * @returns {number} 0-23
    */
   hours(): number {
-    return Math.floor((this.ts % (86_400 * 1_000)) / (3_600 * 1_000));
+    return Math.floor(mod(this.ts, 86_400_000) / 3_600_000);
   }
 
   /**
@@ -116,7 +146,8 @@ class DateZen {
    * @description 0 - Sunday, 1 - Monday, ..., 6 - Saturday
    */
   weekday(): number {
-    return (((FIRST_DAY + this.totalDays) % 7) + 7) % 7;
+    const raw = FIRST_DAY + this.totalDays;
+    return ((raw % 7) + 7) % 7;
   }
 
   /**
@@ -191,11 +222,10 @@ class DateZen {
     const HH = String(hour).padStart(2, '0');
     const MM = String(minute).padStart(2, '0');
     const SS = String(second).padStart(2, '0');
-    const MS =
-      millisecond > 0 ? '.' + String(millisecond).padStart(3, '0') : '';
+    const MS = String(millisecond).padStart(3, '0');
     const TZ = 'Z'; // UTC timezone
 
-    return `${year}-${mm}-${dd}T${HH}:${MM}:${SS}${MS}${TZ}`;
+    return `${year}-${mm}-${dd}T${HH}:${MM}:${SS}.${MS}${TZ}`;
   }
 
   /**
