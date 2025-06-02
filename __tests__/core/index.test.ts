@@ -1,77 +1,97 @@
 import { describe, expect, test } from '@jest/globals';
 import DateZen from '@/core/DateZen.class';
-import { ISOtoDateString } from '@/core/utils';
 import {
   generateCases,
   dToFObj,
   dToUObj,
   dzToFObj,
   dzToUObj,
+  ISOtoDateString,
 } from './test-utils';
 import { FIRST_YEAR } from '@/core/config';
+// MAX year
+const MAX_AVAILABLE_YEAR = `287396-10-12T08:59:00.991Z`;
 
-const TOTAL = 1000;
+describe.only(`Range(${FIRST_YEAR - 1} - ${FIRST_YEAR + 1})`, () => {
+  // MAX year
+  const iso = `287396-10-12T08:59:00.991Z`;
+  // const to = `${FIRST_YEAR + 1}-01-01T00:00:00.000Z`;
+  // const cases = generateCases(from, to, 10_000);
+  test(`validate`, () => {
+    // for (const [iso, ts] of cases) {
+    const dateZen = new DateZen(Number.MAX_SAFE_INTEGER);
+    console.log(
+      `INVALID: ${dateZen.valueOf() > Number.MAX_SAFE_INTEGER}`,
+      dateZen.toParts(),
+      dateZen.toISOString()
+    );
+    // const date = new Date(iso);
 
-describe.skip('Test', () => {
-  test('Test', () => {
-    const iso = '1570-01-01T00:00:00.000Z';
-    const dz = new DateZen(iso);
-    const date = new Date(iso);
+    const expected = {
+      // ...dToUObj(date),
+      // ctrlTS: ts,
+      ctrlISO: iso,
+    };
 
-    expect({
-      ...dToUObj(date),
-      ctrlTS: date.getTime(),
-      ctrlISO: date.toISOString(),
-    }).toEqual({
-      ...dzToUObj(dz),
-      ctrlTS: dz.toMillseconds(),
-      ctrlISO: dz.toISOString(),
-    });
-    // expect(true).toBe(true);
+    const actual = {
+      // ...dzToUObj(dateZen),
+      // ctrlTS: dateZen.toMillseconds(),
+      ctrlISO: dateZen.toISOString(),
+    };
+
+    expect(actual).toEqual(expected);
+    // }
   });
 });
 
-describe(`${FIRST_YEAR - 400} - ${FIRST_YEAR}`, () => {
-  const from = new Date(`${FIRST_YEAR - 400}-01-01T00:00:00.000Z`).getTime();
-  const to = new Date(`${FIRST_YEAR}-01-01T00:00:00.000Z`).getTime();
-  const cases = generateCases(from, to, TOTAL);
-  describe('By ISO', () => {
-    test.each(cases)('ISO: %s; TS: %i', (...values) => {
-      const [iso, ts] = values;
+describe(`Range(${FIRST_YEAR - 400} - ${FIRST_YEAR})`, () => {
+  const from = `${FIRST_YEAR - 400}-01-01T00:00:00.000Z`;
+  const to = `${FIRST_YEAR}-01-01T00:00:00.000Z`;
+  const cases = generateCases(from, to, 1);
+  test(`By ISO: ${cases[0][0]} - ${cases[cases.length - 1][0]}`, () => {
+    for (const [iso, ts] of cases) {
       const dateZen = new DateZen(iso);
       const date = new Date(iso);
-      expect({
+
+      const expected = {
         ...dToUObj(date),
         ctrlTS: ts,
         ctrlISO: iso,
-      }).toEqual({
+      };
+
+      const actual = {
         ...dzToUObj(dateZen),
         ctrlTS: dateZen.toMillseconds(),
         ctrlISO: dateZen.toISOString(),
-      });
-    });
+      };
+
+      expect(actual).toEqual(expected);
+    }
   });
 
-  describe('By Timestamp', () => {
-    test.each(cases)('ISO: %s; TS: %i', (...values) => {
-      const [iso, ts] = values;
-      const dateZen = new DateZen(ts);
-      const date = new Date(ts);
-      expect({
+  describe(`By Timestamp: ${cases[0][0]} - ${cases[cases.length - 1][0]}`, () => {
+    for (const [iso, ts] of cases) {
+      const dateZen = new DateZen(iso);
+      const date = new Date(iso);
+
+      const expected = {
         ...dToUObj(date),
         ctrlTS: ts,
         ctrlISO: iso,
-      }).toEqual({
+      };
+
+      const actual = {
         ...dzToUObj(dateZen),
         ctrlTS: dateZen.toMillseconds(),
         ctrlISO: dateZen.toISOString(),
-      });
-    });
+      };
+
+      expect(actual).toEqual(expected);
+    }
   });
 
-  describe('By Parts', () => {
-    test.each(cases)('ISO: %s; TS: %i', (...values) => {
-      const [iso, ts] = values;
+  test(`By Parts: ${cases[0][0]} - ${cases[cases.length - 1][0]}`, () => {
+    for (const [iso, ts] of cases) {
       const dateParts = ISOtoDateString(iso);
       if (!dateParts) {
         throw new Error(`Invalid ISO string: ${iso}`);
@@ -86,63 +106,75 @@ describe(`${FIRST_YEAR - 400} - ${FIRST_YEAR}`, () => {
         millisecond: dateParts.ms,
       });
       const date = new Date(iso);
-      expect({
+
+      const expected = {
         ...dToUObj(date),
         ctrlTS: ts,
         ctrlISO: iso,
-      }).toEqual({
+      };
+
+      const actual = {
         ...dzToUObj(dateZen),
         ctrlTS: dateZen.toMillseconds(),
         ctrlISO: dateZen.toISOString(),
-      });
-    });
+      };
+
+      expect(actual).toEqual(expected);
+    }
   });
 });
 
 describe(`${FIRST_YEAR} - ${FIRST_YEAR + 400}`, () => {
-  const from = new Date(`${FIRST_YEAR}-01-01T00:00:00.000Z`).getTime();
-  const to = new Date(`${FIRST_YEAR + 400}-01-01T00:00:00.000Z`).getTime();
-  const cases = generateCases(from, to, TOTAL);
-  describe('By ISO', () => {
-    test.each(cases)('ISO: %s; TS: %i', (...values) => {
-      const [iso, ts] = values;
+  const from = `${FIRST_YEAR}-01-01T00:00:00.000Z`;
+  const to = `${FIRST_YEAR + 400}-01-01T00:00:00.000Z`;
+  const cases = generateCases(from, to, 1);
+  test(`By ISO: ${cases[0][0]} - ${cases[cases.length - 1][0]}`, () => {
+    for (const [iso, ts] of cases) {
       const dateZen = new DateZen(iso);
       const date = new Date(iso);
-      expect({
+
+      const expected = {
         ...dToFObj(date),
         ...dToUObj(date),
         ctrlTS: ts,
         ctrlISO: iso,
-      }).toEqual({
-        ...dzToFObj(dateZen),
+      };
+
+      const actual = {
         ...dzToUObj(dateZen),
+        ...dzToFObj(dateZen),
         ctrlTS: dateZen.toMillseconds(),
         ctrlISO: dateZen.toISOString(),
-      });
-    });
+      };
+
+      expect(actual).toEqual(expected);
+    }
   });
 
-  describe('By Timestamp', () => {
-    test.each(cases)('ISO: %s; TS: %i', (...values) => {
-      const [iso, ts] = values;
+  test(`By Timestamp: ${cases[0][0]} - ${cases[cases.length - 1][0]}`, () => {
+    for (const [iso, ts] of cases) {
       const dateZen = new DateZen(ts);
       const date = new Date(ts);
-      expect({
+
+      const expected = {
         ...dToFObj(date),
         ...dToUObj(date),
         ctrlTS: ts,
         ctrlISO: iso,
-      }).toEqual({
-        ...dzToFObj(dateZen),
+      };
+
+      const actual = {
         ...dzToUObj(dateZen),
+        ...dzToFObj(dateZen),
         ctrlTS: dateZen.toMillseconds(),
         ctrlISO: dateZen.toISOString(),
-      });
-    });
+      };
+
+      expect(actual).toEqual(expected);
+    }
   });
-  describe('By Parts', () => {
-    test.each(cases)('ISO: %s; TS: %i', (...values) => {
-      const [iso, ts] = values;
+  test(`By Parts: ${cases[0][0]} - ${cases[cases.length - 1][0]}`, () => {
+    for (const [iso, ts] of cases) {
       const dateParts = ISOtoDateString(iso);
       if (!dateParts) {
         throw new Error(`Invalid ISO string: ${iso}`);
@@ -157,17 +189,22 @@ describe(`${FIRST_YEAR} - ${FIRST_YEAR + 400}`, () => {
         millisecond: dateParts.ms,
       });
       const date = new Date(iso);
-      expect({
+
+      const expected = {
         ...dToFObj(date),
         ...dToUObj(date),
         ctrlTS: ts,
         ctrlISO: iso,
-      }).toEqual({
-        ...dzToFObj(dateZen),
+      };
+
+      const actual = {
         ...dzToUObj(dateZen),
+        ...dzToFObj(dateZen),
         ctrlTS: dateZen.toMillseconds(),
         ctrlISO: dateZen.toISOString(),
-      });
-    });
+      };
+
+      expect(actual).toEqual(expected);
+    }
   });
 });

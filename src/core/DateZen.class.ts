@@ -1,15 +1,14 @@
 import Math from '@/math';
 
-import {
-  FIRST_DAY,
-  FIRST_YEAR,
-  MONTHS,
-  LIST_OF_DAYS_AFTER_1970,
-  LIST_OF_DAYS_BEFORE_1970,
-  commulativeMonths,
-} from './config';
+import { FIRST_DAY, MONTHS, commulativeMonths } from './config';
 import { Parts, DateZenInput } from './types';
-import { binarySearch, isLeapYear, parseInput, toMillseconds } from './utils';
+import {
+  binarySearch,
+  isLeapYear,
+  toMillseconds,
+  getYearAndRestDays,
+} from './utils';
+import parseInput from './parse';
 
 class DateZen {
   private ts: number = NaN;
@@ -33,17 +32,10 @@ class DateZen {
     if (this._memo) return this._memo;
 
     let totalDays = this.totalDays;
-    let baseYear = 0;
-    let LIST;
 
     if (totalDays >= 0) {
-      LIST = LIST_OF_DAYS_AFTER_1970;
-      baseYear = FIRST_YEAR;
-      const size = LIST.length - 1;
-      const lastValue = LIST[size];
-      const [yearIndex, restDays] = binarySearch(totalDays % lastValue, LIST);
-      const year =
-        baseYear + yearIndex + Math.floor(totalDays / lastValue) * size;
+      const [year, restDays] = getYearAndRestDays(totalDays);
+
       const isLeap = isLeapYear(year);
 
       const [month, day] = binarySearch(
@@ -52,15 +44,8 @@ class DateZen {
       );
       return (this._memo = { year, month, day: day + 1, isLeap });
     }
-    const absDays = -totalDays;
-
-    baseYear = FIRST_YEAR - 1;
-    LIST = LIST_OF_DAYS_BEFORE_1970;
-
-    const size = LIST.length - 1;
-    const lastValue = LIST[size];
-    const [yearIndex, restDays] = binarySearch(absDays % lastValue, LIST, true);
-    const year = baseYear - yearIndex - Math.floor(absDays / lastValue) * size;
+    // const absDays = -totalDays;
+    const [year, restDays] = getYearAndRestDays(totalDays);
 
     const isLeap = isLeapYear(year);
     const [month, day] = binarySearch(
@@ -173,6 +158,11 @@ class DateZen {
   day(): number {
     const { day } = this.getMemo();
     return day;
+  }
+
+  isLeapYear(): boolean {
+    const { isLeap } = this.getMemo();
+    return Boolean(isLeap);
   }
 
   /**
