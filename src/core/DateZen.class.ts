@@ -1,23 +1,15 @@
+import Math from '@/math';
+
 import {
   FIRST_DAY,
   FIRST_YEAR,
-  LAST_YEAR,
-  LIST_OF_DAYS_IN_4_YEARS,
   MONTHS,
-  DAYS_UP_TO_LAST_YEAR,
-  LIST_OF_DAYS_IN_400_YEARS,
+  LIST_OF_DAYS_AFTER_1970,
   LIST_OF_DAYS_BEFORE_1970,
+  commulativeMonths,
 } from './config';
 import { Parts, DateZenInput } from './types';
-import {
-  binarySearch,
-  isLeapYear,
-  parseInput,
-  toMillseconds,
-  mod,
-  floor,
-  joining,
-} from './utils';
+import { binarySearch, isLeapYear, parseInput, toMillseconds } from './utils';
 
 class DateZen {
   private ts: number = NaN;
@@ -34,7 +26,7 @@ class DateZen {
   }
 
   private get totalDays() {
-    return floor(this.ts / 86_400_000);
+    return Math.floor(this.ts / 86_400_000);
   }
 
   private getMemo() {
@@ -45,14 +37,8 @@ class DateZen {
     let LIST;
 
     if (totalDays >= 0) {
-      if (totalDays >= DAYS_UP_TO_LAST_YEAR) {
-        totalDays -= DAYS_UP_TO_LAST_YEAR;
-        LIST = LIST_OF_DAYS_IN_400_YEARS;
-        baseYear = LAST_YEAR;
-      } else {
-        LIST = LIST_OF_DAYS_IN_4_YEARS;
-        baseYear = FIRST_YEAR;
-      }
+      LIST = LIST_OF_DAYS_AFTER_1970;
+      baseYear = FIRST_YEAR;
       const size = LIST.length - 1;
       const lastValue = LIST[size];
       const [yearIndex, restDays] = binarySearch(totalDays % lastValue, LIST);
@@ -62,7 +48,7 @@ class DateZen {
 
       const [month, day] = binarySearch(
         restDays,
-        [0, ...MONTHS[isLeap]].map(joining)
+        commulativeMonths(isLeap, true)
       );
       return (this._memo = { year, month, day: day + 1, isLeap });
     }
@@ -79,7 +65,7 @@ class DateZen {
     const isLeap = isLeapYear(year);
     const [month, day] = binarySearch(
       restDays,
-      [...MONTHS[isLeap], 0].reverse().map(joining),
+      commulativeMonths(isLeap, false),
       true
     );
 
@@ -113,7 +99,7 @@ class DateZen {
    * @returns {number} 0-999
    */
   millseconds(): number {
-    return mod(this.ts, 1_000);
+    return Math.mod(this.ts, 1_000);
   }
 
   /**
@@ -121,7 +107,7 @@ class DateZen {
    * @returns {number} 0-59
    */
   seconds(): number {
-    return Math.floor(mod(this.ts, 60_000) / 1_000);
+    return Math.floor(Math.mod(this.ts, 60_000) / 1_000);
   }
 
   /**
@@ -129,7 +115,7 @@ class DateZen {
    * @returns {number} 0-59
    */
   minutes(): number {
-    return Math.floor(mod(this.ts, 3_600_000) / 60_000);
+    return Math.floor(Math.mod(this.ts, 3_600_000) / 60_000);
   }
 
   /**
@@ -137,7 +123,7 @@ class DateZen {
    * @returns {number} 0-23
    */
   hours(): number {
-    return Math.floor(mod(this.ts, 86_400_000) / 3_600_000);
+    return Math.floor(Math.mod(this.ts, 86_400_000) / 3_600_000);
   }
 
   /**

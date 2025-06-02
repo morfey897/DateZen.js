@@ -1,14 +1,21 @@
 import { describe, expect, test } from '@jest/globals';
 import DateZen from '@/core/DateZen.class';
 import { ISOtoDateString } from '@/core/utils';
-import { generateCases, dToFObj, dToUObj, dzToFObj, dzToUObj } from './utils';
+import {
+  generateCases,
+  dToFObj,
+  dToUObj,
+  dzToFObj,
+  dzToUObj,
+} from './test-utils';
+import { FIRST_YEAR } from '@/core/config';
 
-const TOTAL = 0;
+const TOTAL = 1000;
 
-describe.only('Test', () => {
+describe.skip('Test', () => {
   test('Test', () => {
-    const iso = '1969-02-28T00:00:00.001Z';
-    const dateZen = new DateZen(iso);
+    const iso = '1570-01-01T00:00:00.000Z';
+    const dz = new DateZen(iso);
     const date = new Date(iso);
 
     expect({
@@ -16,17 +23,17 @@ describe.only('Test', () => {
       ctrlTS: date.getTime(),
       ctrlISO: date.toISOString(),
     }).toEqual({
-      ...dzToUObj(dateZen),
-      ctrlTS: dateZen.toMillseconds(),
-      ctrlISO: dateZen.toISOString(),
+      ...dzToUObj(dz),
+      ctrlTS: dz.toMillseconds(),
+      ctrlISO: dz.toISOString(),
     });
     // expect(true).toBe(true);
   });
 });
 
-describe('Before 1970', () => {
-  const from = new Date('1800-01-01T00:00:00.000Z').getTime();
-  const to = new Date('1970-01-01T00:00:00.000Z').getTime();
+describe(`${FIRST_YEAR - 400} - ${FIRST_YEAR}`, () => {
+  const from = new Date(`${FIRST_YEAR - 400}-01-01T00:00:00.000Z`).getTime();
+  const to = new Date(`${FIRST_YEAR}-01-01T00:00:00.000Z`).getTime();
   const cases = generateCases(from, to, TOTAL);
   describe('By ISO', () => {
     test.each(cases)('ISO: %s; TS: %i', (...values) => {
@@ -92,9 +99,9 @@ describe('Before 1970', () => {
   });
 });
 
-describe('After 1970', () => {
-  const from = new Date('1970-01-01T00:00:00.000Z').getTime();
-  const to = new Date('2100-01-01T00:00:00.000Z').getTime();
+describe(`${FIRST_YEAR} - ${FIRST_YEAR + 400}`, () => {
+  const from = new Date(`${FIRST_YEAR}-01-01T00:00:00.000Z`).getTime();
+  const to = new Date(`${FIRST_YEAR + 400}-01-01T00:00:00.000Z`).getTime();
   const cases = generateCases(from, to, TOTAL);
   describe('By ISO', () => {
     test.each(cases)('ISO: %s; TS: %i', (...values) => {
@@ -164,48 +171,3 @@ describe('After 1970', () => {
     });
   });
 });
-
-/*
-describe('Core up to 2100', () => {
-  const timestamps = [];
-  const from = new Date('2100-01-01T00:00:00.000Z').getTime();
-  for (let i = 0; i < TOTAL; i++) {
-    timestamps.push(
-      Math.floor(from + Math.random() * (1000 * 365 * 1000 * 24 * 60 * 60))
-    );
-  }
-  const cases = timestamps
-    .sort((a, b) => a - b)
-    .map((timestamp) => [timestamp, new Date(timestamp).toISOString()]);
-
-  test.each(cases)('Timestamp: %i -> DateZen: %s', (...timestamp) => {
-    const milseconds = timestamp[0] as unknown as number;
-    const dateZen = new DateZen(milseconds);
-    const date = new Date(milseconds);
-
-    expect({
-      yyyy: date.getUTCFullYear(),
-      mm: date.getUTCMonth() + 1,
-      mmIndex: date.getUTCMonth(),
-      dd: date.getUTCDate(),
-      d: date.getUTCDay(),
-      h: date.getUTCHours(),
-      m: date.getUTCMinutes(),
-      s: date.getUTCSeconds(),
-      ms: date.getUTCMilliseconds(),
-      iso: date.toISOString(),
-    }).toEqual({
-      yyyy: dateZen.year(),
-      mm: dateZen.month(),
-      mmIndex: dateZen.monthIndex(),
-      dd: dateZen.day(),
-      d: dateZen.weekday(),
-      h: dateZen.hours(),
-      m: dateZen.minutes(),
-      s: dateZen.seconds(),
-      ms: dateZen.millseconds(),
-      iso: dateZen.toISOString(),
-    });
-  });
-});
-*/

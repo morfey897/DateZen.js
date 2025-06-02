@@ -1,6 +1,6 @@
 import { describe, expect } from '@jest/globals';
 import diff from '@/utils/diff';
-import DateZen from '../src/core/DateZen.class';
+import DateZen from '../../src/core/DateZen.class';
 
 describe('diff', () => {
   it('should return diff in millseconds by default', () => {

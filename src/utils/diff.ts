@@ -1,3 +1,5 @@
+import Math from '../math';
+
 import { NumericLike, TimeUnit } from './types';
 
 /**

@@ -1,3 +1,5 @@
+import Math from '@/math';
+
 import { MONTHS, FIRST_YEAR } from './config';
 import { DateZenInput } from './types';
 
@@ -30,15 +32,6 @@ const invalidInput = (
   d > MONTHS[isLeapYear(y)][m - 1] ||
   // Check validation y
   y < 0;
-
-export const joining = (days: number, index: number, arr: number[]) =>
-  days + (index > 0 ? arr.slice(0, index).reduce((a, b) => a + b, 0) : 0);
-
-export const mod = (n: number, m: number) => ((n % m) + m) % m;
-export const floor = (n: number) => {
-  if (n % 1 === 0) return n;
-  return n >= 0 ? Math.trunc(n) : Math.trunc(n - 1);
-};
 
 export const toMillseconds = (
   days: number,
@@ -84,14 +77,6 @@ export function binarySearch(
 
 export function isLeapYear(year: number): number {
   return +((year % 4 === 0 && year % 100 !== 0) || year % 400 === 0);
-}
-
-// TODO for format
-export function patternMatch(pattern: string) {
-  const match = pattern.match(
-    /(?<!\\)(Y{1,4}|M{1,4}|D{1,4}|d{1,4}|h{1,4}|m{1,4}|s{1,4})/g
-  );
-  return match || [];
 }
 
 export function calcDaysSinceEpoch(y: number, m: number, d: number): number {

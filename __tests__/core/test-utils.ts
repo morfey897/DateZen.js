@@ -1,5 +1,4 @@
 import DateZen from '@/core/DateZen.class';
-import { ISOtoDateString } from '@/core/utils';
 
 export const generateCases = (
   from: number,
@@ -7,8 +6,16 @@ export const generateCases = (
   TOTAL: number
 ): Array<[string, number]> => {
   const TIME: Array<[string, number]> = [];
+  const diff = to - from;
   for (let i = 0; i < TOTAL; i++) {
-    const ts = Math.floor(from + Math.random() * (to - from));
+    if (i === 0) {
+      TIME.push([new Date(from).toISOString(), from]);
+      continue;
+    } else if (i === TOTAL - 1) {
+      TIME.push([new Date(to).toISOString(), to]);
+      continue;
+    }
+    const ts = Math.floor(from + Math.random() * diff);
     TIME.push([new Date(ts).toISOString(), ts]);
   }
   return [...TIME].sort((a, b) => a[1] - b[1]);
