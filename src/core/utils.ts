@@ -1,6 +1,6 @@
 import Math from '@/math';
 
-import { MONTHS, FIRST_YEAR } from './config';
+import { MONTHS } from './config';
 
 export const toMillseconds = (
   days: number,
@@ -18,7 +18,7 @@ export const toMillseconds = (
 export function binarySearch(
   target: number,
   mask: number[],
-  back: boolean = false
+  upto1970: boolean
 ): [number, number] {
   if (Number.isNaN(target)) return [NaN, NaN];
   let left = 0;
@@ -28,13 +28,13 @@ export function binarySearch(
     const mid = Math.floor((left + right) / 2);
     if (
       (target > mask[mid] && target < mask[mid + 1]) ||
-      (!back && target === mask[mid]) ||
-      (back && target === mask[mid + 1])
+      (upto1970 && target === mask[mid]) ||
+      (!upto1970 && target === mask[mid + 1])
     ) {
       return [mid, target - mask[mid]];
     }
 
-    if (mask[mid] > target || (back && mask[mid] === target)) {
+    if (mask[mid] > target || (!upto1970 && mask[mid] === target)) {
       right = mid - 1;
     } else {
       left = mid + 1;
@@ -51,8 +51,8 @@ export function isLeapYear(year: number): number {
 export function calcDaysSinceEpoch(y: number, m: number, d: number): number {
   let days = 0;
   const monthDays = MONTHS[isLeapYear(y)];
-  if (y >= FIRST_YEAR) {
-    for (let year = FIRST_YEAR; year < y; year++) {
+  if (y >= 1970) {
+    for (let year = 1970; year < y; year++) {
       days = days + (365 + isLeapYear(year));
     }
     for (let i = 0; i < m - 1; i++) {
@@ -60,7 +60,7 @@ export function calcDaysSinceEpoch(y: number, m: number, d: number): number {
     }
     return days + (d - 1);
   }
-  for (let year = y + 1; year < FIRST_YEAR; year++) {
+  for (let year = y + 1; year < 1970; year++) {
     days = days - (365 + isLeapYear(year));
   }
   for (let i = 11; i > m - 1; i--) {
@@ -70,7 +70,7 @@ export function calcDaysSinceEpoch(y: number, m: number, d: number): number {
 }
 
 export function getYearAndRestDays(totalDays: number): [number, number] {
-  let year = Math.floor(totalDays / 365.2425) + FIRST_YEAR;
+  let year = Math.floor(totalDays / 365.2425) + 1970;
 
   let startOfYearDays = calcDaysSinceEpoch(year, 1, 1);
 

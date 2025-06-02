@@ -1,7 +1,4 @@
 // 01.01.1970 00:00:00 settings
-export const FIRST_DAY = 4;
-export const FIRST_YEAR = 1970;
-
 const joining = (days: number, index: number, arr: number[]) =>
   days + (index > 0 ? arr.slice(0, index).reduce((a, b) => a + b, 0) : 0);
 

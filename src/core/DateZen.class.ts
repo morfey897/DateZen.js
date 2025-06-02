@@ -1,6 +1,6 @@
 import Math from '@/math';
 
-import { FIRST_DAY, MONTHS, commulativeMonths } from './config';
+import { MONTHS, commulativeMonths } from './config';
 import { Parts, DateZenInput } from './types';
 import {
   binarySearch,
@@ -31,28 +31,20 @@ class DateZen {
   private getMemo() {
     if (this._memo) return this._memo;
 
-    let totalDays = this.totalDays;
-
-    if (totalDays >= 0) {
-      const [year, restDays] = getYearAndRestDays(totalDays);
-
-      const isLeap = isLeapYear(year);
-
-      const [month, day] = binarySearch(
-        restDays,
-        commulativeMonths(isLeap, true)
-      );
-      return (this._memo = { year, month, day: day + 1, isLeap });
-    }
-    // const absDays = -totalDays;
+    const totalDays = this.totalDays;
+    const isUpper = totalDays >= 0;
     const [year, restDays] = getYearAndRestDays(totalDays);
 
     const isLeap = isLeapYear(year);
     const [month, day] = binarySearch(
       restDays,
-      commulativeMonths(isLeap, false),
-      true
+      commulativeMonths(isLeap, isUpper),
+      isUpper
     );
+
+    if (isUpper) {
+      return (this._memo = { year, month, day: day + 1, isLeap });
+    }
 
     const m = 11 - month;
     return (this._memo = {
@@ -117,7 +109,7 @@ class DateZen {
    * @description 0 - Sunday, 1 - Monday, ..., 6 - Saturday
    */
   weekday(): number {
-    const raw = FIRST_DAY + this.totalDays;
+    const raw = 4 + this.totalDays;
     return ((raw % 7) + 7) % 7;
   }
 

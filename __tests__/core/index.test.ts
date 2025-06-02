@@ -8,11 +8,11 @@ import {
   dzToUObj,
   ISOtoDateString,
 } from './test-utils';
-import { FIRST_YEAR } from '@/core/config';
+const FIRST_YEAR = 1970;
 // MAX year
 const MAX_AVAILABLE_YEAR = `287396-10-12T08:59:00.991Z`;
 
-describe.only(`Range(${FIRST_YEAR - 1} - ${FIRST_YEAR + 1})`, () => {
+describe(`Range(${FIRST_YEAR - 1} - ${FIRST_YEAR + 1})`, () => {
   // MAX year
   const iso = `287396-10-12T08:59:00.991Z`;
   // const to = `${FIRST_YEAR + 1}-01-01T00:00:00.000Z`;
@@ -20,11 +20,6 @@ describe.only(`Range(${FIRST_YEAR - 1} - ${FIRST_YEAR + 1})`, () => {
   test(`validate`, () => {
     // for (const [iso, ts] of cases) {
     const dateZen = new DateZen(Number.MAX_SAFE_INTEGER);
-    console.log(
-      `INVALID: ${dateZen.valueOf() > Number.MAX_SAFE_INTEGER}`,
-      dateZen.toParts(),
-      dateZen.toISOString()
-    );
     // const date = new Date(iso);
 
     const expected = {
