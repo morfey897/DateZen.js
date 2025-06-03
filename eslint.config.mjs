@@ -17,10 +17,13 @@ export default [
       'node_modules/**/*',
       'eslint.config.{ts,js,mjs,cjs}',
       'tsup.config.{ts,js,mjs,cjs}',
+      'tsup-benchmark.config.{ts,js,mjs,cjs}',
       'jest.config.{ts,js,mjs,cjs}',
       'strip-comments-plugin.js',
       '__tests__/*',
       '__tests__/**/*',
+      '__benchmarks__/*',
+      '__benchmarks__/**/*',
     ],
   },
   {

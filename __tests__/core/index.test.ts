@@ -8,18 +8,21 @@ import {
   dzToUObj,
   ISOtoDateString,
 } from './test-utils';
+
+const TOTAL_TESTS = 1000;
+
 const FIRST_YEAR = 1970;
 // MAX year
 const MAX_AVAILABLE_YEAR = `287396-10-12T08:59:00.991Z`;
 
 describe(`Range(${FIRST_YEAR - 1} - ${FIRST_YEAR + 1})`, () => {
   // MAX year
-  const iso = `287396-10-12T08:59:00.991Z`;
+  const iso = MAX_AVAILABLE_YEAR;
   // const to = `${FIRST_YEAR + 1}-01-01T00:00:00.000Z`;
   // const cases = generateCases(from, to, 10_000);
   test(`validate`, () => {
     // for (const [iso, ts] of cases) {
-    const dateZen = new DateZen(Number.MAX_SAFE_INTEGER);
+    const dateZen = new DateZen(iso);
     // const date = new Date(iso);
 
     const expected = {
@@ -42,7 +45,7 @@ describe(`Range(${FIRST_YEAR - 1} - ${FIRST_YEAR + 1})`, () => {
 describe(`Range(${FIRST_YEAR - 400} - ${FIRST_YEAR})`, () => {
   const from = `${FIRST_YEAR - 400}-01-01T00:00:00.000Z`;
   const to = `${FIRST_YEAR}-01-01T00:00:00.000Z`;
-  const cases = generateCases(from, to, 1);
+  const cases = generateCases(from, to, TOTAL_TESTS);
   test(`By ISO: ${cases[0][0]} - ${cases[cases.length - 1][0]}`, () => {
     for (const [iso, ts] of cases) {
       const dateZen = new DateZen(iso);
@@ -122,7 +125,7 @@ describe(`Range(${FIRST_YEAR - 400} - ${FIRST_YEAR})`, () => {
 describe(`${FIRST_YEAR} - ${FIRST_YEAR + 400}`, () => {
   const from = `${FIRST_YEAR}-01-01T00:00:00.000Z`;
   const to = `${FIRST_YEAR + 400}-01-01T00:00:00.000Z`;
-  const cases = generateCases(from, to, 1);
+  const cases = generateCases(from, to, TOTAL_TESTS);
   test(`By ISO: ${cases[0][0]} - ${cases[cases.length - 1][0]}`, () => {
     for (const [iso, ts] of cases) {
       const dateZen = new DateZen(iso);

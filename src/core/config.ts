@@ -1,15 +1,13 @@
-// 01.01.1970 00:00:00 settings
-const joining = (days: number, index: number, arr: number[]) =>
-  days + (index > 0 ? arr.slice(0, index).reduce((a, b) => a + b, 0) : 0);
-
 export const MONTHS = [
   [31, 28, 31, 30, 31, 30, 31, 31, 30, 31, 30, 31] as const,
   [31, 29, 31, 30, 31, 30, 31, 31, 30, 31, 30, 31] as const,
 ] as const;
 
-export const commulativeMonths = (isLeap: number, upto1970: boolean) => {
-  if (upto1970) {
-    return [0, ...MONTHS[isLeap]].map(joining);
-  }
-  return [...MONTHS[isLeap], 0].reverse().map(joining);
-};
+export const COMMULATIVE_MONTHS = [
+  // Before 1970
+  [0, 31, 61, 92, 122, 153, 184, 214, 245, 275, 306, 334, 365] as const,
+  [0, 31, 61, 92, 122, 153, 184, 214, 245, 275, 306, 335, 366] as const,
+  // After 1970
+  [0, 31, 59, 90, 120, 151, 181, 212, 243, 273, 304, 334, 365] as const,
+  [0, 31, 60, 91, 121, 152, 182, 213, 244, 274, 305, 335, 366] as const,
+] as const;

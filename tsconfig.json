@@ -23,6 +23,6 @@
     "emitDeclarationOnly": false,
     "forceConsistentCasingInFileNames": true
   },
-  "include": ["src/**/*", "__tests__/**/*"],
+  "include": ["src/**/*", "__tests__/**/*", "__benchmarks__/**/*"],
   "exclude": ["node_modules", "dist"]
 }

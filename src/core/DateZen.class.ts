@@ -1,6 +1,6 @@
 import Math from '@/math';
 
-import { MONTHS, commulativeMonths } from './config';
+import { MONTHS, COMMULATIVE_MONTHS } from './config';
 import { Parts, DateZenInput } from './types';
 import {
   binarySearch,
@@ -38,21 +38,18 @@ class DateZen {
     const isLeap = isLeapYear(year);
     const [month, day] = binarySearch(
       restDays,
-      commulativeMonths(isLeap, isUpper),
+      COMMULATIVE_MONTHS[Number(isUpper) * 2 + isLeap],
       isUpper
     );
 
-    if (isUpper) {
-      return (this._memo = { year, month, day: day + 1, isLeap });
-    }
-
-    const m = 11 - month;
-    return (this._memo = {
-      year,
-      month: m,
-      day: MONTHS[isLeap][m] - day + 1,
-      isLeap,
-    });
+    return (this._memo = isUpper
+      ? { year, month, day: day + 1, isLeap }
+      : {
+          year,
+          month: 11 - month,
+          day: MONTHS[isLeap][11 - month] - day + 1,
+          isLeap,
+        });
   }
 
   /**
@@ -118,8 +115,7 @@ class DateZen {
    * @returns {number} from 1970
    */
   year(): number {
-    const { year } = this.getMemo();
-    return year;
+    return this.getMemo().year;
   }
 
   /**
@@ -129,8 +125,7 @@ class DateZen {
    * 0 - January, 1 - February, ... 11 - December
    */
   monthIndex(): number {
-    const { month } = this.getMemo();
-    return month;
+    return this.getMemo().month;
   }
 
   /**
@@ -140,7 +135,7 @@ class DateZen {
    * 1 - January, 2 - February, ... 12 - December
    */
   month(): number {
-    return this.monthIndex() + 1; // Convert to 1-12 range
+    return this.getMemo().month + 1; // Convert to 1-12 range
   }
 
   /**
@@ -148,13 +143,11 @@ class DateZen {
    * @returns {number} 1-31
    */
   day(): number {
-    const { day } = this.getMemo();
-    return day;
+    return this.getMemo().day;
   }
 
   isLeapYear(): boolean {
-    const { isLeap } = this.getMemo();
-    return Boolean(isLeap);
+    return Boolean(this.getMemo().isLeap);
   }
 
   /**
@@ -180,20 +173,39 @@ class DateZen {
    * @returns {string} ISO string
    */
   toISOString(): string {
-    if (this.isInvalid()) return 'Invalid Date';
+    if (Number.isNaN(this.ts)) return 'Invalid Date';
 
-    const { year, month, day, hour, minute, second, millisecond } =
-      this.toParts();
+    const year = this.year();
+    const month = this.month();
+    const day = this.day();
+    const hour = this.hours();
+    const minute = this.minutes();
+    const second = this.seconds();
+    const millisecond = this.millseconds();
 
-    const mm = String(month).padStart(2, '0');
-    const dd = String(day).padStart(2, '0');
-    const HH = String(hour).padStart(2, '0');
-    const MM = String(minute).padStart(2, '0');
-    const SS = String(second).padStart(2, '0');
-    const MS = String(millisecond).padStart(3, '0');
-    const TZ = 'Z'; // UTC timezone
-
-    return `${year}-${mm}-${dd}T${HH}:${MM}:${SS}.${MS}${TZ}`;
+    return (
+      year +
+      '-' +
+      (month < 10 ? '0' : '') +
+      month +
+      '-' +
+      (day < 10 ? '0' : '') +
+      day +
+      'T' +
+      (hour < 10 ? '0' : '') +
+      hour +
+      ':' +
+      (minute < 10 ? '0' : '') +
+      minute +
+      ':' +
+      (second < 10 ? '0' : '') +
+      second +
+      '.' +
+      // eslint-disable-next-line no-nested-ternary
+      (millisecond < 10 ? '00' : millisecond < 100 ? '0' : '') +
+      millisecond +
+      'Z'
+    );
   }
 
   /**

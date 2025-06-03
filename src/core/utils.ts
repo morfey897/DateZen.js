@@ -17,7 +17,7 @@ export const toMillseconds = (
 
 export function binarySearch(
   target: number,
-  mask: number[],
+  mask: readonly number[],
   upto1970: boolean
 ): [number, number] {
   if (Number.isNaN(target)) return [NaN, NaN];
