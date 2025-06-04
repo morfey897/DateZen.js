@@ -1,5 +1,6 @@
 export type Parts = {
   year: number;
+  leapYear: boolean;
   month: number;
   monthIndex: number;
   day: number;

@@ -4,7 +4,12 @@ import printBenchTable from './printResult';
 import DateZen from '../src/core/DateZen.class';
 
 const testISOs = Array.from({ length: 100_000 }, (_, i) => {
-  const date = new Date(1965, 0, 1 + (i % 365), 13); // 1965-01-01 + i days
+  const date = new Date(
+    1900 + Math.floor(Math.random() * 400),
+    0,
+    1 + (i % 365),
+    13
+  );
   return date.toISOString();
 });
 const testTSs = testISOs.map((iso) => new Date(iso).getTime());
@@ -13,15 +18,6 @@ let index = 0;
 const bench = new Bench({ time: 100 });
 
 bench
-  .add('DZ from ISO', () => {
-    const iso = testISOs[index++ % testISOs.length];
-    const dz = new DateZen(iso);
-    return dz;
-  })
-  .add('Native from ISO', () => {
-    const iso = testISOs[index++ % testISOs.length];
-    return new Date(iso);
-  })
   .add('DZ from TS', () => {
     const ts = testTSs[index++ % testTSs.length];
     const dz = new DateZen(ts);
@@ -31,6 +27,15 @@ bench
     const ts = testTSs[index++ % testTSs.length];
     const date = new Date(ts);
     return date;
+  })
+  .add('DZ from ISO', () => {
+    const iso = testISOs[index++ % testISOs.length];
+    const dz = new DateZen(iso);
+    return dz;
+  })
+  .add('Native from ISO', () => {
+    const iso = testISOs[index++ % testISOs.length];
+    return new Date(iso);
   })
   .add('DZ .toParts()', () => {
     const iso = testISOs[index++ % testISOs.length];

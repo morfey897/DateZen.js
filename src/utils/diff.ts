@@ -1,4 +1,4 @@
-import Math from '../math';
+import MathFunc from '../math';
 
 import { NumericLike, TimeUnit } from './types';
 
@@ -8,13 +8,13 @@ import { NumericLike, TimeUnit } from './types';
 function convert(ms: number, unit: TimeUnit): number {
   switch (unit) {
     case 'm':
-      return Math.floor(ms / (60 * 1_000));
+      return MathFunc.floor(ms / (60 * 1_000));
     case 'h':
-      return Math.floor(ms / (3_600 * 1_000));
+      return MathFunc.floor(ms / (3_600 * 1_000));
     case 'd':
-      return Math.floor(ms / (86_400 * 1_000));
+      return MathFunc.floor(ms / (86_400 * 1_000));
     case 's':
-      return Math.floor(ms / 1_000);
+      return MathFunc.floor(ms / 1_000);
     default:
       return ms;
   }
@@ -51,7 +51,7 @@ function diff(
     const result: Record<TimeUnit, number> = {} as Record<TimeUnit, number>;
 
     for (const [u, milsecondsInUnit] of orderedUnits) {
-      result[u] = Math.floor(totalMillseconds / milsecondsInUnit);
+      result[u] = MathFunc.floor(totalMillseconds / milsecondsInUnit);
       totalMillseconds %= milsecondsInUnit;
     }
 

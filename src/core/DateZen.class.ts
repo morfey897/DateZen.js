@@ -1,3 +1,4 @@
+/* eslint-disable no-nested-ternary */
 import Math from '@/math';
 
 import { MONTHS, COMMULATIVE_MONTHS } from './config';
@@ -13,26 +14,21 @@ import parseInput from './parse';
 class DateZen {
   private ts: number = NaN;
 
-  private _memo = {
-    month: 0,
-    day: 0,
-    year: 0,
-    isLeap: 0,
-    inited: false,
-  };
+  private _month: number = 0;
+  private _day: number = 0;
+  private _year: number = 0;
+
+  private _hour: number = 0;
+  private _minute: number = 0;
+  private _second: number = 0;
+  private _millisecond: number = 0;
+  private _weekday: number = 0;
 
   constructor(input?: DateZenInput) {
-    this.ts = parseInput(input);
-  }
+    const result = parseInput(input);
+    this.ts = result;
 
-  private get totalDays() {
-    return Math.floor(this.ts / 86_400_000);
-  }
-
-  private getMemo() {
-    if (this._memo.inited) return this._memo;
-
-    const totalDays = this.totalDays;
+    const totalDays = Math.floor(result / 86_400_000);
     const isUpper = totalDays >= 0;
     const [year, restDays] = getYearAndRestDays(totalDays);
 
@@ -43,13 +39,22 @@ class DateZen {
       isUpper
     );
 
-    this._memo.inited = true;
-    this._memo.year = year;
-    this._memo.month = isUpper ? month : 11 - month; // Adjust month for upper or lower half of the year
-    this._memo.day = isUpper ? day + 1 : MONTHS[isLeap][11 - month] - day + 1; // Adjust day for upper or lower half of the year
-    this._memo.isLeap = isLeap;
-    // Return the memoized value
-    return this._memo;
+    this._year = year;
+    this._month = isUpper ? month : 11 - month;
+    this._day = isUpper ? day + 1 : MONTHS[isLeap][11 - month] - day + 1;
+
+    let rest = Math.mod(result, 86_400_000);
+
+    this._hour = Math.floor(rest / 3_600_000);
+    rest %= 3_600_000;
+
+    this._minute = Math.floor(rest / 60_000);
+    rest %= 60_000;
+
+    this._second = Math.floor(rest / 1_000);
+    this._millisecond = rest % 1_000;
+
+    this._weekday = Math.mod(4 + totalDays, 7);
   }
 
   /**
@@ -73,7 +78,7 @@ class DateZen {
    * @returns {number} 0-999
    */
   millseconds(): number {
-    return Math.mod(this.ts, 1_000);
+    return this._millisecond;
   }
 
   /**
@@ -81,7 +86,7 @@ class DateZen {
    * @returns {number} 0-59
    */
   seconds(): number {
-    return Math.floor(Math.mod(this.ts, 60_000) / 1_000);
+    return this._second;
   }
 
   /**
@@ -89,7 +94,7 @@ class DateZen {
    * @returns {number} 0-59
    */
   minutes(): number {
-    return Math.floor(Math.mod(this.ts, 3_600_000) / 60_000);
+    return this._minute;
   }
 
   /**
@@ -97,7 +102,7 @@ class DateZen {
    * @returns {number} 0-23
    */
   hours(): number {
-    return Math.floor(Math.mod(this.ts, 86_400_000) / 3_600_000);
+    return this._hour;
   }
 
   /**
@@ -106,8 +111,7 @@ class DateZen {
    * @description 0 - Sunday, 1 - Monday, ..., 6 - Saturday
    */
   weekday(): number {
-    const raw = 4 + this.totalDays;
-    return ((raw % 7) + 7) % 7;
+    return this._weekday;
   }
 
   /**
@@ -115,7 +119,7 @@ class DateZen {
    * @returns {number} from 1970
    */
   year(): number {
-    return this.getMemo().year;
+    return this._year;
   }
 
   /**
@@ -125,7 +129,7 @@ class DateZen {
    * 0 - January, 1 - February, ... 11 - December
    */
   monthIndex(): number {
-    return this.getMemo().month;
+    return this._month;
   }
 
   /**
@@ -135,7 +139,7 @@ class DateZen {
    * 1 - January, 2 - February, ... 12 - December
    */
   month(): number {
-    return this.getMemo().month + 1; // Convert to 1-12 range
+    return this._month + 1;
   }
 
   /**
@@ -143,11 +147,11 @@ class DateZen {
    * @returns {number} 1-31
    */
   day(): number {
-    return this.getMemo().day;
+    return this._day;
   }
 
   isLeapYear(): boolean {
-    return Boolean(this.getMemo().isLeap);
+    return isLeapYear(this._year) === 1;
   }
 
   /**
@@ -155,17 +159,17 @@ class DateZen {
    * @returns {object} { year, month, monthIndex, day, hour, minute, second }
    */
   toParts(): Parts {
-    const m = this.getMemo();
     return {
-      year: m.year,
-      month: m.month + 1,
-      monthIndex: m.month,
-      day: m.day,
-      hour: this.hours(),
-      minute: this.minutes(),
-      second: this.seconds(),
-      weekday: this.weekday(),
-      millisecond: this.millseconds(),
+      year: this._year,
+      leapYear: this.isLeapYear(),
+      month: this._month + 1,
+      monthIndex: this._month,
+      day: this._day,
+      hour: this._hour,
+      minute: this._minute,
+      second: this._second,
+      weekday: this._weekday,
+      millisecond: this._millisecond,
     };
   }
 
@@ -176,35 +180,32 @@ class DateZen {
   toISOString(): string {
     if (Number.isNaN(this.ts)) return 'Invalid Date';
 
-    const year = this.year();
-    const month = this.month();
-    const day = this.day();
-    const hour = this.hours();
-    const minute = this.minutes();
-    const second = this.seconds();
-    const millisecond = this.millseconds();
-
     return (
-      year +
+      (this._year < 10
+        ? '000' + this._year
+        : this._year < 100
+          ? '00' + this._year
+          : this._year < 1000
+            ? '0' + this._year
+            : this._year) +
       '-' +
-      (month < 10 ? '0' : '') +
-      month +
+      (this._month + 1 < 10 ? '0' : '') +
+      (this._month + 1) +
       '-' +
-      (day < 10 ? '0' : '') +
-      day +
+      (this._day < 10 ? '0' : '') +
+      this._day +
       'T' +
-      (hour < 10 ? '0' : '') +
-      hour +
+      (this._hour < 10 ? '0' : '') +
+      this._hour +
       ':' +
-      (minute < 10 ? '0' : '') +
-      minute +
+      (this._minute < 10 ? '0' : '') +
+      this._minute +
       ':' +
-      (second < 10 ? '0' : '') +
-      second +
+      (this._second < 10 ? '0' : '') +
+      this._second +
       '.' +
-      // eslint-disable-next-line no-nested-ternary
-      (millisecond < 10 ? '00' : millisecond < 100 ? '0' : '') +
-      millisecond +
+      (this._millisecond < 10 ? '00' : this._millisecond < 100 ? '0' : '') +
+      this._millisecond +
       'Z'
     );
   }
@@ -229,7 +230,7 @@ class DateZen {
     milliseconds?: number;
   }): DateZen {
     const totalSeconds =
-      weeks * 7 * 86_400 * 1_000 +
+      weeks * 604_800_000 +
       toMillseconds(days, hours, minutes, seconds, milliseconds);
     return new DateZen(this.ts + totalSeconds);
   }
@@ -254,7 +255,7 @@ class DateZen {
     milliseconds?: number;
   }): DateZen {
     const totalSeconds =
-      weeks * 7 * 86_400 * 1_000 +
+      weeks * 604_800_000 +
       toMillseconds(days, hours, minutes, seconds, milliseconds);
     return new DateZen(this.ts - totalSeconds);
   }

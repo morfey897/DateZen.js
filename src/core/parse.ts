@@ -10,36 +10,56 @@ const invalidInput = (
   mm: number,
   ss: number,
   ms: number
-) =>
-  // Check validation hh
-  hh < 0 ||
-  hh > 23 ||
-  // Check validation mm
-  mm < 0 ||
-  mm > 59 ||
-  // Check validation ss
-  ss < 0 ||
-  ss > 59 ||
-  // Check validation ms
-  ms < 0 ||
-  ms > 999 ||
-  // Check validation m
-  m < 1 ||
-  m > 12 ||
-  // Check validation d
-  d < 1 ||
-  d > MONTHS[isLeapYear(y)][m - 1] ||
-  // Check validation y
-  y < 0;
+) => {
+  const isFinite = Number.isFinite;
+  return (
+    // Check validation y
+    y < 0 ||
+    !isFinite(y) ||
+    // Check validation m
+    m < 1 ||
+    m > 12 ||
+    !isFinite(m) ||
+    // Check validation d
+    d < 1 ||
+    d > MONTHS[isLeapYear(y)][m - 1] ||
+    !isFinite(d) ||
+    // Check validation hh
+    hh < 0 ||
+    hh > 23 ||
+    !isFinite(hh) ||
+    // Check validation mm
+    mm < 0 ||
+    mm > 59 ||
+    !isFinite(mm) ||
+    // Check validation ss
+    ss < 0 ||
+    ss > 59 ||
+    !isFinite(ss) ||
+    // Check validation ms
+    ms < 0 ||
+    ms > 999 ||
+    !isFinite(ms)
+  );
+};
 
 function parseISOString(input: string): number {
   const match = input.match(
     /^(\d+)-(\d{2})-(\d{2})[T ](\d{2}):(\d{2}):(\d{2})(\.\d+)?(?:Z)?$/
   );
-  if (!match) return NaN;
-  const [, y, m, d, hh, mm, ss, millsec] = match.map(Number);
+
+  const parseInt = Number.parseInt;
+  const y = parseInt(match?.[1] as string, 10);
+  const m = parseInt(match?.[2] as string, 10);
+  const d = parseInt(match?.[3] as string, 10);
+  const hh = parseInt(match?.[4] as string, 10);
+  const mm = parseInt(match?.[5] as string, 10);
+  const ss = parseInt(match?.[6] as string, 10);
+  const millsec = Number.parseFloat((match?.[7] as string) || '0');
   const ms = Number.isFinite(millsec) ? millsec * 1_000 : 0;
+
   if (invalidInput(y, m, d, hh, mm, ss, ms)) return NaN;
+
   const days = calcDaysSinceEpoch(y, m, d);
   return toMillseconds(days, hh, mm, ss, ms);
 }
@@ -105,35 +125,32 @@ function parseParts(input: {
 }
 
 function parseInput(input?: DateZenInput): number {
-  let ts: number = NaN;
-  if (typeof input === 'string') {
-    ts = parseISOString(input);
-  } else if (typeof input === 'number') {
-    ts = parseNumber(input);
-  } else if (
+  const type = typeof input;
+  if (type === 'string') {
+    return parseISOString(input as string);
+  }
+  if (type === 'number') {
+    return parseNumber(input as number);
+  }
+
+  if (
     input &&
     typeof input === 'object' &&
     'value' in input &&
     'unit' in input
   ) {
-    ts = parseObject(input);
-  } else if (
+    return parseObject(input);
+  }
+  if (
     input &&
     typeof input === 'object' &&
     'year' in input &&
     ('month' in input || 'monthIndex' in input) &&
     'day' in input
   ) {
-    ts = parseParts(input);
-  } else {
-    ts = Math.floor(Date.now());
+    return parseParts(input);
   }
-
-  return Number.isFinite(ts) &&
-    ts >= Number.MIN_SAFE_INTEGER &&
-    ts <= Number.MAX_SAFE_INTEGER
-    ? ts
-    : NaN;
+  return Date.now();
 }
 
 export default parseInput;
