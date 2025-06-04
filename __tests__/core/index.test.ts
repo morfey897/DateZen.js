@@ -7,7 +7,7 @@ import {
   dzToFObj,
   dzToUObj,
   ISOtoDateString,
-} from './test-utils';
+} from '../test-utils';
 
 const TOTAL_TESTS = 1000;
 
