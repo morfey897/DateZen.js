@@ -83,7 +83,9 @@ function format(date: Parts, pattern: string) {
     }
   };
 
-  for (const key of match) {
+  const len = match.length;
+  for (let i = 0; i < len; i++) {
+    const key = match[i];
     if (parts.has(key)) continue;
     // Process the Y/M/D parts first
     if (key.startsWith('Y')) {

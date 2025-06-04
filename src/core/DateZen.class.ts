@@ -13,11 +13,12 @@ import parseInput from './parse';
 class DateZen {
   private ts: number = NaN;
 
-  private _memo?: {
-    month: number;
-    day: number;
-    year: number;
-    isLeap: number;
+  private _memo = {
+    month: 0,
+    day: 0,
+    year: 0,
+    isLeap: 0,
+    inited: false,
   };
 
   constructor(input?: DateZenInput) {
@@ -29,7 +30,7 @@ class DateZen {
   }
 
   private getMemo() {
-    if (this._memo) return this._memo;
+    if (this._memo.inited) return this._memo;
 
     const totalDays = this.totalDays;
     const isUpper = totalDays >= 0;
@@ -42,14 +43,13 @@ class DateZen {
       isUpper
     );
 
-    return (this._memo = isUpper
-      ? { year, month, day: day + 1, isLeap }
-      : {
-          year,
-          month: 11 - month,
-          day: MONTHS[isLeap][11 - month] - day + 1,
-          isLeap,
-        });
+    this._memo.inited = true;
+    this._memo.year = year;
+    this._memo.month = isUpper ? month : 11 - month; // Adjust month for upper or lower half of the year
+    this._memo.day = isUpper ? day + 1 : MONTHS[isLeap][11 - month] - day + 1; // Adjust day for upper or lower half of the year
+    this._memo.isLeap = isLeap;
+    // Return the memoized value
+    return this._memo;
   }
 
   /**
@@ -155,11 +155,12 @@ class DateZen {
    * @returns {object} { year, month, monthIndex, day, hour, minute, second }
    */
   toParts(): Parts {
+    const m = this.getMemo();
     return {
-      year: this.year(),
-      month: this.month(),
-      monthIndex: this.monthIndex(),
-      day: this.day(),
+      year: m.year,
+      month: m.month + 1,
+      monthIndex: m.month,
+      day: m.day,
       hour: this.hours(),
       minute: this.minutes(),
       second: this.seconds(),

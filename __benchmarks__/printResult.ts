@@ -3,7 +3,7 @@ import { TaskResult } from 'tinybench';
 
 const MAX_COLUMN_WIDTH = 25;
 
-const SEPARATOR = '│ ';
+const SEPARATOR = '│';
 
 type Modifier =
   | 'reset'
@@ -31,22 +31,31 @@ export default function printBenchTable(
   title: string,
   tasks: { name: string; result: TaskResult | undefined }[]
 ) {
-  const toValue = (str: string, color: Color, modifier?: Modifier) => {
+  const toValue = (
+    str: string,
+    options: { clr: Color; mdf?: Modifier; to: 'start' | 'end' } = {
+      clr: 'white',
+      mdf: undefined,
+      to: 'end',
+    }
+  ) => {
     const result =
       str.length > MAX_COLUMN_WIDTH
         ? str.slice(0, MAX_COLUMN_WIDTH)
-        : str.padEnd(MAX_COLUMN_WIDTH, ' ');
-    const inst = chalk[color];
+        : options.to === 'end'
+          ? str.padStart(MAX_COLUMN_WIDTH, ' ')
+          : str.padEnd(MAX_COLUMN_WIDTH, ' ');
+    const inst = chalk[options.clr];
     if (!inst) return result;
-    return modifier ? inst[modifier](result) : inst(result);
+    return options.mdf ? inst[options.mdf](result) : inst(result);
   };
 
   const header = [
-    toValue('Name', 'white', 'bold'),
-    toValue('Throughput (ops/sec)', 'white', 'bold'),
-    toValue('Latency Avg (ms)', 'white', 'bold'),
-    toValue('Std Deviation (ms)', 'white', 'bold'),
-    toValue('Samples', 'white', 'bold'),
+    toValue('Name', { clr: 'white', mdf: 'bold', to: 'start' }),
+    toValue('Throughput (ops/sec)', { clr: 'white', mdf: 'bold', to: 'end' }),
+    toValue('Latency Avg (ms)', { clr: 'white', mdf: 'bold', to: 'end' }),
+    toValue('Std Deviation (ms)', { clr: 'white', mdf: 'bold', to: 'end' }),
+    toValue('Samples', { clr: 'white', mdf: 'bold', to: 'end' }),
   ].join(SEPARATOR);
 
   const separator = '─'.repeat(header.replace(/\x1B\[[0-9;]*m/g, '').length);
@@ -61,17 +70,30 @@ export default function printBenchTable(
     for (let j = 0; j < 2 && i + j < len; j++) {
       const { name, result } = tasks[i + j];
       const first = j === 0;
-      const modifier = first ? 'bold' : undefined;
+      const mdf = first ? 'bold' : undefined;
       const line = [
-        toValue(name, 'cyan', modifier),
-        toValue(result?.throughput.mean.toFixed(2) ?? 'n/a', 'green', modifier),
-        toValue(result?.latency.mean.toFixed(4) ?? 'n/a', 'yellow', modifier),
-        toValue(result?.latency.sd.toFixed(4) ?? 'n/a', 'blue', modifier),
-        toValue(
-          result?.latency.samples.length.toString() ?? 'n/a',
-          'magenta',
-          modifier
-        ),
+        toValue(name, { clr: 'cyan', mdf, to: 'start' }),
+        toValue(result?.throughput?.mean?.toFixed(2) ?? 'n/a', {
+          clr: 'green',
+          mdf,
+          to: 'end',
+        }),
+        toValue(result?.latency?.mean?.toFixed(4) ?? 'n/a', {
+          clr: 'yellow',
+          mdf,
+          to: 'end',
+        }),
+        toValue(result?.latency?.sd?.toFixed(4) ?? 'n/a', {
+          clr: 'blue',
+          mdf,
+          to: 'end',
+        }),
+        toValue(result?.latency?.samples?.length?.toString() ?? 'n/a', {
+          clr: 'magenta',
+          mdf,
+          to: 'end',
+        }),
+        ,
       ];
       console.log(line.join(SEPARATOR));
       if (j === 1 && i + 2 < len) {

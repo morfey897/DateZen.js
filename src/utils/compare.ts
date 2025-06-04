@@ -6,9 +6,6 @@ import { NumericLike } from './types';
  *  1 if a > b
  */
 function compare(dateA: NumericLike, dateB: NumericLike): -1 | 0 | 1 {
-  // const dateA = a instanceof DateZen ? a : new DateZen(a);
-  // const dateB = b instanceof DateZen ? b : new DateZen(b);
-
   const diff = +dateA - +dateB;
   if (isNaN(diff)) {
     throw new TypeError('Cannot compare invalid DateZen instances');
