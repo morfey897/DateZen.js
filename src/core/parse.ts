@@ -1,4 +1,5 @@
-import { DateZenInput } from './types';
+import { DateZenInput } from '@/types';
+
 import { calcDaysSinceEpoch, toMillseconds, isLeapYear } from './utils';
 import { MONTHS } from './config';
 

@@ -1,8 +1,16 @@
 /* eslint-disable no-nested-ternary */
-import Math from '@/math';
+import MathFn from '@/math';
+import {
+  Parts,
+  DateZenInput,
+  PluginType,
+  PluginFunction,
+  DateZenPluginDiff,
+  DateZenPluginFormat,
+  NumericLike,
+} from '@/types';
 
 import { MONTHS, COMMULATIVE_MONTHS } from './config';
-import { Parts, DateZenInput } from './types';
 import {
   binarySearch,
   isLeapYear,
@@ -10,6 +18,8 @@ import {
   getYearAndRestDays,
 } from './utils';
 import parseInput from './parse';
+
+export const globalPlugins = new Map<PluginType, PluginFunction<PluginType>>();
 
 class DateZen {
   private ts: number = NaN;
@@ -24,11 +34,13 @@ class DateZen {
   private _millisecond: number = 0;
   private _weekday: number = 0;
 
+  private plugins = new Map<PluginType, PluginFunction<PluginType>>();
+
   constructor(input?: DateZenInput) {
     const result = parseInput(input);
     this.ts = result;
 
-    const totalDays = Math.floor(result / 86_400_000);
+    const totalDays = MathFn.floor(result / 86_400_000);
     const isUpper = totalDays >= 0;
     const [year, restDays] = getYearAndRestDays(totalDays);
 
@@ -43,18 +55,29 @@ class DateZen {
     this._month = isUpper ? month : 11 - month;
     this._day = isUpper ? day + 1 : MONTHS[isLeap][11 - month] - day + 1;
 
-    let rest = Math.mod(result, 86_400_000);
+    let rest = MathFn.mod(result, 86_400_000);
 
-    this._hour = Math.floor(rest / 3_600_000);
+    this._hour = MathFn.floor(rest / 3_600_000);
     rest %= 3_600_000;
 
-    this._minute = Math.floor(rest / 60_000);
+    this._minute = MathFn.floor(rest / 60_000);
     rest %= 60_000;
 
-    this._second = Math.floor(rest / 1_000);
+    this._second = MathFn.floor(rest / 1_000);
     this._millisecond = rest % 1_000;
 
-    this._weekday = Math.mod(4 + totalDays, 7);
+    this._weekday = MathFn.mod(4 + totalDays, 7);
+  }
+
+  /**
+   * Use a plugin
+   * @param {PluginType} type - Type of the plugin
+   * @param {PluginFunction<T>} plugin - Plugin function
+   * @returns {this} Current instance
+   */
+  use<T extends PluginType>(type: T, plugin: PluginFunction<T>): this {
+    this.plugins.set(type, plugin);
+    return this;
   }
 
   /**
@@ -70,7 +93,7 @@ class DateZen {
    * @returns {number} timestamp in seconds
    */
   toSeconds(): number {
-    return Math.floor(this.ts / 1_000);
+    return MathFn.floor(this.ts / 1_000);
   }
 
   /**
@@ -150,6 +173,10 @@ class DateZen {
     return this._day;
   }
 
+  /**
+   * Check if the year is a leap year
+   * @returns {boolean} true if the year is a leap year
+   */
   isLeapYear(): boolean {
     return isLeapYear(this._year) === 1;
   }
@@ -298,6 +325,97 @@ class DateZen {
   [Symbol.toPrimitive](hint: string): number | string {
     if (hint === 'string') return this.toISOString();
     return this.ts;
+  }
+
+  /**
+   * UTILITY METHODS
+   */
+
+  /**
+   * Check if the date is the same as the given date
+   * @param {NumericLike} date - Date to compare with
+   * @returns {boolean} true if the dates are the same
+   */
+  isSame(date: NumericLike): boolean {
+    return this.ts === +date;
+  }
+
+  /**
+   * Check if the date is before the given date
+   * @param {NumericLike} date - Date to compare with
+   * @returns {boolean} true if the date is before the given date
+   */
+  isBefore(date: NumericLike): boolean {
+    return this.ts < +date;
+  }
+  /**
+   * Check if the date is after the given date
+   * @param {NumericLike} date - Date to compare with
+   * @returns {boolean} true if the date is after the given date
+   */
+  isAfter(date: NumericLike): boolean {
+    return this.ts > +date;
+  }
+  /**
+   * Check if the date is on or before the given date
+   * @param {NumericLike} from - Date to compare with
+   * @param {NumericLike} to - Date to compare with
+   * @returns {boolean} true if the date is on or before the given date
+   */
+  isBetween(from: NumericLike, to: NumericLike): boolean {
+    const fromTs = +from;
+    const toTs = +to;
+    return this.ts > fromTs && this.ts < toTs;
+  }
+
+  /**
+   * Compare two dates
+   * @param {NumericLike} dateA - First date to compare
+   * @param {NumericLike} dateB - Second date to compare
+   * @returns {-1 | 0 | 1} -1 if dateA is before dateB, 0 if they are the same, 1 if dateA is after dateB
+   */
+  static compare(dateA: NumericLike, dateB: NumericLike): -1 | 0 | 1 {
+    return Math.sign(+dateA - +dateB) as -1 | 0 | 1;
+  }
+
+  /**
+   * PLUGIN METHODS
+   */
+
+  /**
+   * Format the date using a plugin
+   * @param {string} pattern - Pattern to format the date
+   * @returns {string} Formatted date
+   */
+  format(
+    pattern: Parameters<DateZenPluginFormat>[1]
+  ): ReturnType<DateZenPluginFormat> {
+    const plugin = this.plugins.get('format') ?? globalPlugins.get('format');
+    if (plugin) {
+      const fn = plugin as PluginFunction<'format'>;
+      return fn(this.toParts(), pattern);
+    }
+    console.error('No format plugin registered');
+    return pattern;
+  }
+
+  /**
+   * Get the difference between two dates using a plugin
+   * @param {NumericLike} date - Date to compare with
+   * @param {string} unit - Unit to return the difference in (default: 'ms')
+   * @returns {number | Record<string, number>} Difference in the specified unit(s)
+   */
+  diff(
+    date: Parameters<DateZenPluginDiff>[1],
+    unit: Parameters<DateZenPluginDiff>[2] = 'ms'
+  ): ReturnType<DateZenPluginDiff> {
+    const plugin = this.plugins.get('diff') ?? globalPlugins.get('diff');
+    if (plugin) {
+      const fn = plugin as PluginFunction<'diff'>;
+      return fn(this.ts, date, unit);
+    }
+    console.error('No diff plugin registered');
+    return NaN;
   }
 }
 

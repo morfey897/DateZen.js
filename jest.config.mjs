@@ -5,4 +5,5 @@ export default {
   moduleNameMapper: {
     '^@/(.*)$': '<rootDir>/src/$1',
   },
+  testMatch: ['**/*.(spec|test).[tj]s?(x)'],
 };

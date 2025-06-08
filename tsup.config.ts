@@ -3,7 +3,7 @@ import { defineConfig } from 'tsup';
 import { stripCommentsPlugin } from './strip-comments-plugin.js';
 
 export default defineConfig({
-  entry: ['src/index.ts', 'src/format.ts', 'src/compare.ts', 'src/diff.ts'],
+  entry: ['src/index.ts', 'src/format.ts', 'src/diff.ts'],
   format: ['cjs', 'esm'], // Output formats
   dts: true, // Generate TypeScript declarations
   sourcemap: true, // Generate source maps

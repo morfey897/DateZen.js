@@ -1,7 +1,12 @@
 import { describe, expect } from '@jest/globals';
 import format from '@/utils/format';
+import dz from '@/index';
 
 describe('format', () => {
+  beforeAll(() => {
+    dz.use('format', format);
+  });
+
   it('format date with full year', () => {
     const pattern = 'The time is Y-M-D h:m:s ms/A';
     const ms = format(
@@ -84,5 +89,19 @@ describe('format', () => {
       pattern
     );
     expect(ms).toEqual('2024-2-29 5/pm 59 59 999A');
+  });
+
+  it('format through plugin', () => {
+    const pattern = 'Y-M-D h:m:s ms/A';
+    const dateZen = dz({
+      year: 2020,
+      month: 5,
+      day: 15,
+      hour: 8,
+      minute: 20,
+      second: 30,
+      millisecond: 456,
+    });
+    expect(dateZen.format(pattern)).toEqual('2020-5-15 8:20:30 456/AM');
   });
 });
