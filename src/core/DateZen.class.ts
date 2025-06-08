@@ -28,10 +28,10 @@ class DateZen {
   private _day: number = 0;
   private _year: number = 0;
 
-  private _hour: number = 0;
-  private _minute: number = 0;
-  private _second: number = 0;
-  private _millisecond: number = 0;
+  private _hours: number = 0;
+  private _minutes: number = 0;
+  private _seconds: number = 0;
+  private _milliseconds: number = 0;
   private _weekday: number = 0;
 
   private plugins = new Map<PluginType, PluginFunction<PluginType>>();
@@ -57,26 +57,27 @@ class DateZen {
 
     let rest = MathFn.mod(result, 86_400_000);
 
-    this._hour = MathFn.floor(rest / 3_600_000);
+    this._hours = MathFn.floor(rest / 3_600_000);
     rest %= 3_600_000;
 
-    this._minute = MathFn.floor(rest / 60_000);
+    this._minutes = MathFn.floor(rest / 60_000);
     rest %= 60_000;
 
-    this._second = MathFn.floor(rest / 1_000);
-    this._millisecond = rest % 1_000;
+    this._seconds = MathFn.floor(rest / 1_000);
+    this._milliseconds = rest % 1_000;
 
     this._weekday = MathFn.mod(4 + totalDays, 7);
   }
 
   /**
    * Use a plugin
-   * @param {PluginType} type - Type of the plugin
-   * @param {PluginFunction<T>} plugin - Plugin function
-   * @returns {this} Current instance
+   * @param {T | DateZenPluginTypes | DateZenPluginTypes[]} typeOrPlugin - Plugin type or plugin object(s)
+   * @param {PluginFunction<T>} [pluginFn] - Plugin function if type is a string
    */
-  use<T extends PluginType>(type: T, plugin: PluginFunction<T>): this {
-    this.plugins.set(type, plugin);
+  use<T extends PluginType>(type: T, pluginFn: PluginFunction<T>): DateZen {
+    if (typeof type === 'string' && pluginFn) {
+      globalPlugins.set(type, pluginFn);
+    }
     return this;
   }
 
@@ -101,7 +102,7 @@ class DateZen {
    * @returns {number} 0-999
    */
   millseconds(): number {
-    return this._millisecond;
+    return this._milliseconds;
   }
 
   /**
@@ -109,7 +110,7 @@ class DateZen {
    * @returns {number} 0-59
    */
   seconds(): number {
-    return this._second;
+    return this._seconds;
   }
 
   /**
@@ -117,7 +118,7 @@ class DateZen {
    * @returns {number} 0-59
    */
   minutes(): number {
-    return this._minute;
+    return this._minutes;
   }
 
   /**
@@ -125,7 +126,7 @@ class DateZen {
    * @returns {number} 0-23
    */
   hours(): number {
-    return this._hour;
+    return this._hours;
   }
 
   /**
@@ -183,20 +184,20 @@ class DateZen {
 
   /**
    * Get the date as an object
-   * @returns {object} { year, month, monthIndex, day, hour, minute, second }
+   * @returns {object} { isLeapYear, year, month, monthIndex, day, hour, minute, second, millisecond, weekday }
    */
   toParts(): Parts {
     return {
+      isLeapYear: this.isLeapYear(),
+      weekday: this._weekday,
       year: this._year,
-      leapYear: this.isLeapYear(),
       month: this._month + 1,
       monthIndex: this._month,
       day: this._day,
-      hour: this._hour,
-      minute: this._minute,
-      second: this._second,
-      weekday: this._weekday,
-      millisecond: this._millisecond,
+      hours: this._hours,
+      minutes: this._minutes,
+      seconds: this._seconds,
+      milliseconds: this._milliseconds,
     };
   }
 
@@ -222,23 +223,24 @@ class DateZen {
       (this._day < 10 ? '0' : '') +
       this._day +
       'T' +
-      (this._hour < 10 ? '0' : '') +
-      this._hour +
+      (this._hours < 10 ? '0' : '') +
+      this._hours +
       ':' +
-      (this._minute < 10 ? '0' : '') +
-      this._minute +
+      (this._minutes < 10 ? '0' : '') +
+      this._minutes +
       ':' +
-      (this._second < 10 ? '0' : '') +
-      this._second +
+      (this._seconds < 10 ? '0' : '') +
+      this._seconds +
       '.' +
-      (this._millisecond < 10 ? '00' : this._millisecond < 100 ? '0' : '') +
-      this._millisecond +
+      (this._milliseconds < 10 ? '00' : this._milliseconds < 100 ? '0' : '') +
+      this._milliseconds +
       'Z'
     );
   }
 
   /**
    * Add time to the current date and return a new DateZen instance
+   * @param {Object} options - Time to add
    * @returns {DateZen}
    */
   add({
@@ -264,6 +266,7 @@ class DateZen {
 
   /**
    * Subtract time from the current date and return a new DateZen instance
+   * @param {Object} options - Time to subtract
    * @returns {DateZen}
    */
   subtract({
@@ -366,16 +369,6 @@ class DateZen {
     const fromTs = +from;
     const toTs = +to;
     return this.ts > fromTs && this.ts < toTs;
-  }
-
-  /**
-   * Compare two dates
-   * @param {NumericLike} dateA - First date to compare
-   * @param {NumericLike} dateB - Second date to compare
-   * @returns {-1 | 0 | 1} -1 if dateA is before dateB, 0 if they are the same, 1 if dateA is after dateB
-   */
-  static compare(dateA: NumericLike, dateB: NumericLike): -1 | 0 | 1 {
-    return Math.sign(+dateA - +dateB) as -1 | 0 | 1;
   }
 
   /**

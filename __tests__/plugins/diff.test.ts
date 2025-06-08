@@ -1,5 +1,5 @@
 import { describe, expect } from '@jest/globals';
-import diff from '@/utils/diff';
+import diff from '@/plugins/diff';
 import DateZen from '../../src/core/DateZen.class';
 
 describe('diff', () => {

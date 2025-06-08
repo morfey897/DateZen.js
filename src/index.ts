@@ -17,9 +17,12 @@ function dz(input?: DateZenInput): DateZen {
  */
 dz.use = function <T extends PluginType>(
   type: T,
-  plugin: PluginFunction<T>
-): void {
-  globalPlugins.set(type, plugin);
+  pluginFn: PluginFunction<T>
+): typeof dz.use {
+  if (typeof type === 'string' && pluginFn) {
+    globalPlugins.set(type, pluginFn);
+  }
+  return dz.use;
 };
 
 export default dz;

@@ -4,7 +4,7 @@ const getRegex = (key: string) =>
   new RegExp(`(?<![a-zA-Z0-9\\\\])(?<!\\\\)${key}(?![a-zA-Z0-9])`);
 
 const REG_EXP =
-  /(?<![a-zA-Z0-9\\])(?<!\\)(Y{1,4}|M{1,2}|D{1,2}|h{1,2}(?:\s*A|a)?|m{1,2}(?:\s*A|a)?|s{1,2}(?:\s*A|a)?|ms(?:\s*A|a)?|A|a)(?![a-zA-Z0-9])/g;
+  /(?<![a-zA-Z0-9\\])(?<!\\)(Y{1,4}|M{1,2}|D{1,2}|h{1,2}(?:\s*A|a)?|m{1,2}(?:\s*A|a)?|s{1,2}(?:\s*A|a)?|S|SSS(?:\s*A|a)?|A|a)(?![a-zA-Z0-9])/g;
 
 const REMOVE_BACKSLASH = /\\([YMDhmsAa])/g;
 
@@ -16,13 +16,13 @@ const toString = (value: number | undefined, key: string | number) => {
   if (typeof key === 'number') {
     pad = key;
   } else {
-    pad = key === 'ms' ? 3 : key.length;
+    pad = key.length;
   }
   return String(value).padStart(pad, '0');
 };
 
 const toHH12 = (date: Parts, pad: number = 1) => {
-  const rest = Number(date.hour) % 12;
+  const rest = Number(date.hours) % 12;
   return toString(rest === 0 ? 12 : rest, pad);
 };
 
@@ -34,8 +34,8 @@ const getAMPM = (value: Parts, key?: string): string | boolean => {
   const isA = key.endsWith('A');
   const isa = key.endsWith('a');
   if (!isA && !isa) return false;
-  if (!Number.isFinite(value.hour)) return key;
-  const h12 = Number(value.hour) >= 12 ? 'PM' : 'AM';
+  if (!Number.isFinite(value.hours)) return key;
+  const h12 = Number(value.hours) >= 12 ? 'PM' : 'AM';
   if (isA) return h12;
   if (isa) return h12.toLowerCase();
   return false;
@@ -75,7 +75,7 @@ function format(date: Parts, pattern: string) {
           ) || '';
         parts.set(key, value);
       } else if (ampm === true) {
-        const h12 = Number(date.hour) >= 12 ? 'PM' : 'AM';
+        const h12 = Number(date.hours) >= 12 ? 'PM' : 'AM';
         parts.set(key, key === 'A' ? h12 : h12.toLowerCase());
       }
     } else {
@@ -102,22 +102,22 @@ function format(date: Parts, pattern: string) {
     }
     // Process the h part with AM/PM
     if (key.startsWith('h')) {
-      replaceWithAMPM(key, date.hour, ['hh', 'h']);
-      continue;
-    }
-    // Process the ms part without AM/PM
-    if (key.startsWith('ms')) {
-      replaceWithAMPM(key, date.millisecond, ['ms']);
+      replaceWithAMPM(key, date.hours, ['hh', 'h']);
       continue;
     }
     // Process the m part with AM/PM
     if (key.startsWith('m')) {
-      replaceWithAMPM(key, date.minute, ['mm', 'm']);
+      replaceWithAMPM(key, date.minutes, ['mm', 'm']);
       continue;
     }
     // Process the s part with AM/PM
     if (key.startsWith('s')) {
-      replaceWithAMPM(key, date.second, ['ss', 's']);
+      replaceWithAMPM(key, date.seconds, ['ss', 's']);
+      continue;
+    }
+    // Process the S part without AM/PM
+    if (key.startsWith('S')) {
+      replaceWithAMPM(key, date.milliseconds, ['SSS', 'S']);
       continue;
     }
     // Process the A/a part

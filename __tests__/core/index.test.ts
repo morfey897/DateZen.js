@@ -98,10 +98,10 @@ describe(`Range(${FIRST_YEAR - 400} - ${FIRST_YEAR})`, () => {
         year: dateParts.y,
         month: dateParts.m,
         day: dateParts.d,
-        hour: dateParts.hh,
-        minute: dateParts.mm,
-        second: dateParts.ss,
-        millisecond: dateParts.ms,
+        hours: dateParts.hh,
+        minutes: dateParts.mm,
+        seconds: dateParts.ss,
+        milliseconds: dateParts.ms,
       });
       const date = new Date(iso);
 
@@ -181,10 +181,10 @@ describe(`${FIRST_YEAR} - ${FIRST_YEAR + 400}`, () => {
         year: dateParts.y,
         month: dateParts.m,
         day: dateParts.d,
-        hour: dateParts.hh,
-        minute: dateParts.mm,
-        second: dateParts.ss,
-        millisecond: dateParts.ms,
+        hours: dateParts.hh,
+        minutes: dateParts.mm,
+        seconds: dateParts.ss,
+        milliseconds: dateParts.ms,
       });
       const date = new Date(iso);
 

@@ -13,25 +13,25 @@ export type NumericLike =
     };
 
 export type Parts = {
+  isLeapYear: boolean;
+  weekday: number;
   year: number;
-  leapYear: boolean;
   month: number;
   monthIndex: number;
   day: number;
-  hour: number;
-  minute: number;
-  second: number;
-  millisecond: number;
-  weekday: number;
+  hours: number;
+  minutes: number;
+  seconds: number;
+  milliseconds: number;
 };
 
 type InputType = {
   year: number;
   day: number;
-  hour?: number;
-  minute?: number;
-  second?: number;
-  millisecond?: number;
+  hours?: number;
+  minutes?: number;
+  seconds?: number;
+  milliseconds?: number;
 };
 
 export type DateZenInput =
@@ -51,10 +51,10 @@ export type PluginParts = Partial<{
   year: number;
   month: number;
   day: number;
-  hour: number;
-  minute: number;
-  second: number;
-  millisecond: number;
+  hours: number;
+  minutes: number;
+  seconds: number;
+  milliseconds: number;
 }>;
 
 export type DateZenPluginFormat = (
@@ -67,6 +67,11 @@ export type DateZenPluginDiff = (
   dateB: NumericLike,
   unit?: TimeUnit | TimeUnit[]
 ) => number | Record<TimeUnit, number>;
+
+export type DateZenPlugin = {
+  format: DateZenPluginFormat;
+  diff: DateZenPluginDiff;
+};
 
 export type DateZenPluginTypes =
   | {

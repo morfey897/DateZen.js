@@ -1,3 +1,3 @@
-import diff from './utils/diff';
+import diff from './plugins/diff';
 
 export default diff;

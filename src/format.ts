@@ -1,3 +1,3 @@
-import format from './utils/format';
+import format from './plugins/format';
 
 export default format;

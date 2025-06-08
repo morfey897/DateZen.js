@@ -92,18 +92,18 @@ function parseParts(input: {
   month?: number;
   monthIndex?: number;
   day: number;
-  hour?: number;
-  minute?: number;
-  second?: number;
-  millisecond?: number;
+  hours?: number;
+  minutes?: number;
+  seconds?: number;
+  milliseconds?: number;
 }): number {
   const {
     year: y,
     day: d,
-    hour: hh = 0,
-    minute: mm = 0,
-    second: ss = 0,
-    millisecond: millsec = 0,
+    hours: hh = 0,
+    minutes: mm = 0,
+    seconds: ss = 0,
+    milliseconds: millsec = 0,
   } = input;
 
   let m: number;
