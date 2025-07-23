@@ -37,28 +37,28 @@ const bench = new Bench({
 
 bench
   // Parse the date from timestamp
-  .add('DZ from TS', () => {
+  .add('DZ - building from timestamp', () => {
     const ts = tests[index].ts;
     const dz = dateZen(ts);
   })
-  .add('Native from TS', () => {
+  .add('Native - building from timestamp', () => {
     const ts = tests[index].ts;
     const date = new Date(ts);
   })
-  .add('DayJS from TS', () => {
+  .add('DayJS - building from timestamp', () => {
     const ts = tests[index].ts;
     const date = dayjs(ts);
   })
   // Parse the date from ISO string
-  .add('DZ from ISO', () => {
+  .add('DZ - building from ISO', () => {
     const iso = tests[index].iso;
     const dz = dateZen(iso);
   })
-  .add('Native from ISO', () => {
+  .add('Native - building from ISO', () => {
     const iso = tests[index].iso;
     const date = new Date(iso);
   })
-  .add('DayJS from ISO', () => {
+  .add('DayJS - building from ISO', () => {
     const iso = tests[index].iso;
     const date = dayjs(iso);
   })
