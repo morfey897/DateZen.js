@@ -12,12 +12,12 @@
       "require": "./dist/index.cjs"
     },
     "./format": {
-      "import": "./dist/format.js",
-      "require": "./dist/format.cjs"
+      "import": "./dist/format/index.js",
+      "require": "./dist/format/index.cjs"
     },
     "./diff": {
-      "import": "./dist/diff.js",
-      "require": "./dist/diff.cjs"
+      "import": "./dist/diff/index.js",
+      "require": "./dist/diff/index.cjs"
     }
   },
   "sideEffects": false,
