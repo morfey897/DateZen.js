@@ -1,5 +1,5 @@
-import MathFunc from '@/math';
-import { TimeUnit, DateZenPluginDiff } from '@/types';
+import MathFunc from '@/shared/math';
+import type { TimeUnit, DateZenPluginDiff } from '@/shared/types';
 
 /**
  * Converts milliseconds to the specified unit.

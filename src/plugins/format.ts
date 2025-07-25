@@ -1,4 +1,4 @@
-import { PluginParts as Parts } from '@/types';
+import type { PluginParts as Parts } from '@/shared/types';
 
 const getRegex = (key: string) =>
   new RegExp(`(?<![a-zA-Z0-9\\\\])(?<!\\\\)${key}(?![a-zA-Z0-9])`);

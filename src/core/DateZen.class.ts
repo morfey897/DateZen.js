@@ -1,6 +1,6 @@
 /* eslint-disable no-nested-ternary */
-import MathFn from '@/math';
-import {
+import MathFn from '@/shared/math';
+import type {
   Parts,
   DateZenInput,
   PluginType,
@@ -8,7 +8,7 @@ import {
   DateZenPluginDiff,
   DateZenPluginFormat,
   NumericLike,
-} from '@/types';
+} from '@/shared/types';
 
 import { MONTHS, COMMULATIVE_MONTHS } from './config';
 import {

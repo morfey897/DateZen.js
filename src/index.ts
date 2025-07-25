@@ -1,5 +1,5 @@
 import DateZen, { globalPlugins } from '@/core/DateZen.class';
-import { DateZenInput, PluginType, PluginFunction } from '@/types';
+import type { DateZenInput, PluginType, PluginFunction } from '@/shared/types';
 
 /**
  * Factory function to create a DateZen instance.

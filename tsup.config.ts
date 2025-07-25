@@ -3,13 +3,17 @@ import { defineConfig } from 'tsup';
 import { stripCommentsPlugin } from './strip-comments-plugin.js';
 
 export default defineConfig({
-  entry: ['src/index.ts', 'src/format.ts', 'src/diff.ts'],
+  entry: {
+    index: 'src/index.ts',
+    'format/index': 'src/plugins/format.ts',
+    'diff/index': 'src/plugins/diff.ts',
+    'types/index': 'src/shared/types.ts',
+  },
   format: ['cjs', 'esm'], // Output formats
   dts: true, // Generate TypeScript declarations
   sourcemap: true, // Generate source maps
   clean: true, // Clean output directory before each build
   minify: false, // Minify output
-  // target: 'es2020', // JavaScript target version
   splitting: false,
 
   minifySyntax: true,

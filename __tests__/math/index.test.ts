@@ -1,5 +1,5 @@
 import { describe, expect } from '@jest/globals';
-import Math from '@/math';
+import Math from '@/shared/math';
 
 describe('math', () => {
   describe('mod', () => {

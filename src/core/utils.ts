@@ -1,4 +1,4 @@
-import MathFunc from '@/math';
+import MathFunc from '@/shared/math';
 
 import { MONTHS } from './config';
 
