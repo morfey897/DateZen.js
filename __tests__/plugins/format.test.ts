@@ -91,7 +91,7 @@ describe('format', () => {
     expect(SSS).toEqual('2024-2-29 5/pm 59 59 999A');
   });
 
-  it.only('format through plugin', () => {
+  it('format through plugin', () => {
     const pattern = 'Y-M-D h:m:s SSS/A';
     const dateZen = dz({
       year: 2020,
