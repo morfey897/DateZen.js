@@ -1,9 +1,17 @@
 {
   "name": "datezen",
-  "version": "0.1.1",
+  "version": "0.1.2",
   "description": "Lightweight, native-independent date utility library supporting full-range calculations — from 0001-01-01 to 275760-09-13, with no dependencies.",
   "author": "Maksym Cherniavskyi",
   "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/morfey897/DateZen.js.git"
+  },
+  "bugs": {
+    "url": "https://github.com/morfey897/DateZen.js/issues"
+  },
+  "homepage": "https://github.com/morfey897/DateZen.js#readme",
   "main": "dist/index.cjs",
   "module": "dist/index.js",
   "exports": {
