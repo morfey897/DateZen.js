@@ -1,6 +1,6 @@
 {
   "name": "datezen",
-  "version": "0.1.3",
+  "version": "0.1.4",
   "description": "Lightweight, native-independent date utility library supporting full-range calculations — from 0001-01-01 to 275760-09-13, with no dependencies.",
   "author": "Maksym Cherniavskyi",
   "license": "MIT",
@@ -12,23 +12,38 @@
     "url": "https://github.com/morfey897/DateZen.js/issues"
   },
   "homepage": "https://github.com/morfey897/DateZen.js#readme",
-  "main": "dist/index.cjs",
-  "module": "dist/index.mjs",
+  "main": "./dist/index.cjs",
+  "module": "./dist/index.mjs",
+  "types": "./dist/index.d.ts",
   "exports": {
     ".": {
       "import": "./dist/index.mjs",
-      "require": "./dist/index.cjs",
-      "types": "./dist/index.d.ts"
+      "require": "./dist/index.cjs"
     },
     "./format": {
       "import": "./dist/format/index.mjs",
-      "require": "./dist/format/index.cjs",
-      "types": "./dist/format/index.d.ts"
+      "require": "./dist/format/index.cjs"
     },
     "./diff": {
       "import": "./dist/diff/index.mjs",
-      "require": "./dist/diff/index.cjs",
-      "types": "./dist/diff/index.d.ts"
+      "require": "./dist/diff/index.cjs"
+    },
+    "./package.json": "./package.json"
+  },
+  "typesVersions": {
+    "*": {
+      "format": [
+        "dist/format/index.d.ts"
+      ],
+      "diff": [
+        "dist/diff/index.d.ts"
+      ],
+      "plugin": [
+        "dist/plugin/index.d.ts"
+      ],
+      "*": [
+        "dist/index.d.ts"
+      ]
     }
   },
   "sideEffects": false,
