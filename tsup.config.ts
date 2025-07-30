@@ -24,8 +24,13 @@ export default defineConfig({
 
   banner: { js: '"use strict";' },
 
-  esbuildOptions(options) {
+  esbuildOptions(options, context) {
     options.drop = ['console', 'debugger'];
+    if (context.format === 'cjs') {
+      options.outExtension = { '.js': '.cjs' };
+    } else if (context.format === 'esm') {
+      options.outExtension = { '.js': '.mjs' };
+    }
   },
 
   esbuildPlugins: [stripCommentsPlugin()],
