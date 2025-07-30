@@ -53,6 +53,7 @@
   "scripts": {
     "dev": "tsup --watch",
     "build": "tsup",
+    "postbuild": "find dist -name '*.d.mts' -delete",
     "clean": "rm -rf dist",
     "test": "jest",
     "ts-check": "tsc --noEmit",
