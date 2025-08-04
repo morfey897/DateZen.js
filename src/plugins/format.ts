@@ -150,7 +150,7 @@ function format(...params: Parameters<DateZenPluginFormat>): string {
           parts.set(key, translationValue);
         } else {
           throw new Error(
-            `Warning: No translation found for key "${key}" by options.locale "${options?.locale}" or global dictionary. Using default value.`
+            `No translation found for key "${key}" by options.locale "${options?.locale}" or global dictionary. Using default value.`
           );
         }
       } else {
@@ -169,7 +169,7 @@ function format(...params: Parameters<DateZenPluginFormat>): string {
           parts.set(key, translationValue);
         } else {
           throw new Error(
-            `Warning: No translation found for key "${key}" by options.locale "${options?.locale}" or global dictionary. Using default value.`
+            `No translation found for key "${key}" by options.locale "${options?.locale}" or global dictionary. Using default value.`
           );
         }
       } else {
