@@ -1,6 +1,6 @@
 // tsup.config.ts
 import { defineConfig } from 'tsup';
-import stripPlugin from './plugins/strip-plugin.js';
+import stripPlugin from './scripts/strip-plugin.js';
 import { readdir } from 'fs/promises';
 import path from 'path';
 
