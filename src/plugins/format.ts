@@ -149,8 +149,7 @@ function format(...params: Parameters<DateZenPluginFormat>): string {
         if (translationValue) {
           parts.set(key, translationValue);
         } else {
-          parts.set(key, toString(date.month, key));
-          console.warn(
+          throw new Error(
             `Warning: No translation found for key "${key}" by options.locale "${options?.locale}" or global dictionary. Using default value.`
           );
         }
@@ -169,14 +168,7 @@ function format(...params: Parameters<DateZenPluginFormat>): string {
         if (translationValue) {
           parts.set(key, translationValue);
         } else {
-          parts.set(
-            key,
-            toString(
-              typeof weekday === 'number' ? isoWeekDay(weekday) : undefined,
-              key
-            )
-          );
-          console.warn(
+          throw new Error(
             `Warning: No translation found for key "${key}" by options.locale "${options?.locale}" or global dictionary. Using default value.`
           );
         }

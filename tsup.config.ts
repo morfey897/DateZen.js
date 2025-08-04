@@ -47,7 +47,7 @@ export default defineConfig({
   banner: { js: '"use strict";' },
 
   esbuildOptions(options, context) {
-    options.drop = ['debugger'];
+    options.drop = ['debugger', 'console'];
     if (context.format === 'cjs') {
       options.outExtension = { '.js': '.cjs' };
     } else if (context.format === 'esm') {

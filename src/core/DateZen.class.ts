@@ -398,8 +398,7 @@ class DateZen {
       const fn = plugin as PluginFunction<'format'>;
       return fn(this.toParts(), pattern, options);
     }
-    console.error('No format plugin registered');
-    return pattern;
+    throw new Error('No format plugin registered');
   }
 
   /**
@@ -417,8 +416,7 @@ class DateZen {
       const fn = plugin as PluginFunction<'diff'>;
       return fn(this.ts, date, unit);
     }
-    console.error('No diff plugin registered');
-    return NaN;
+    throw new Error('No diff plugin registered');
   }
 }
 
