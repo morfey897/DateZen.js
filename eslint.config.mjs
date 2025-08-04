@@ -19,7 +19,7 @@ export default [
       'tsup.config.{ts,js,mjs,cjs}',
       'tsup-benchmark.config.{ts,js,mjs,cjs}',
       'jest.config.{ts,js,mjs,cjs}',
-      'strip-comments-plugin.js',
+      'plugins/*',
       '__tests__/*',
       '__tests__/**/*',
       '__benchmarks__/*',

@@ -139,6 +139,15 @@ class DateZen {
   }
 
   /**
+   * ISO day of the week (1-7)
+   * @returns {number} 1-7
+   * @description 1 - Monday, 2 - Tuesday, ..., 7 - Sunday
+   */
+  isoWeekday(): number {
+    return ((this._weekday + 6) % 7) + 1;
+  }
+
+  /**
    * Full year (1970-...)
    * @returns {number} from 1970
    */
@@ -381,12 +390,13 @@ class DateZen {
    * @returns {string} Formatted date
    */
   format(
-    pattern: Parameters<DateZenPluginFormat>[1]
+    pattern: Parameters<DateZenPluginFormat>[1],
+    options?: Parameters<DateZenPluginFormat>[2]
   ): ReturnType<DateZenPluginFormat> {
     const plugin = this.plugins.get('format') ?? globalPlugins.get('format');
     if (plugin) {
       const fn = plugin as PluginFunction<'format'>;
-      return fn(this.toParts(), pattern);
+      return fn(this.toParts(), pattern, options);
     }
     console.error('No format plugin registered');
     return pattern;

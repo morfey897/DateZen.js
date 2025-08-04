@@ -57,9 +57,22 @@ export type PluginParts = Partial<{
   milliseconds: number;
 }>;
 
+export type Dictionary = {
+  MMM?: string[]; // Short month names [e.g., Jan, Feb]
+  MMMM?: string[]; // Full month names [e.g., January, February]
+  MMMMM?: string[]; // Abbreviated month names [e.g., J, F]
+  EEE?: string[]; // Abbreviated day names [e.g., Sun, Mon]
+  EEEE?: string[]; // Full day names [e.g., Sunday, Monday]
+  EEEEE?: string[]; // Short day names [e.g., S, M]
+};
+
 export type DateZenPluginFormat = (
   date: PluginParts,
-  pattern: string
+  pattern: string,
+  options?: {
+    locale?: string;
+    dictionary?: Dictionary;
+  }
 ) => string;
 
 export type DateZenPluginDiff = (

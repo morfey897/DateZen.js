@@ -15,30 +15,20 @@ const FIRST_YEAR = 1970;
 // MAX year
 const MAX_AVAILABLE_YEAR = `287396-10-12T08:59:00.991Z`;
 
-describe(`Range(${FIRST_YEAR - 1} - ${FIRST_YEAR + 1})`, () => {
-  // MAX year
+describe(`MAX_AVAILABLE_YEAR: ${MAX_AVAILABLE_YEAR}`, () => {
   const iso = MAX_AVAILABLE_YEAR;
-  // const to = `${FIRST_YEAR + 1}-01-01T00:00:00.000Z`;
-  // const cases = generateCases(from, to, 10_000);
   test(`validate`, () => {
-    // for (const [iso, ts] of cases) {
     const dateZen = new DateZen(iso);
-    // const date = new Date(iso);
 
     const expected = {
-      // ...dToUObj(date),
-      // ctrlTS: ts,
       ctrlISO: iso,
     };
 
     const actual = {
-      // ...dzToUObj(dateZen),
-      // ctrlTS: dateZen.toMillseconds(),
       ctrlISO: dateZen.toISOString(),
     };
 
     expect(actual).toEqual(expected);
-    // }
   });
 });
 
