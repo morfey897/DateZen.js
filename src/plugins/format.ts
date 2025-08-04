@@ -69,8 +69,8 @@ function getTranslation(
     GLOBAL_DICTIONARY[options?.locale || Object.keys(GLOBAL_DICTIONARY)[0]];
 
   const translation = dict ? dict[key as keyof Dictionary] : undefined;
-  const transitionValue = translation ? translation[index] : undefined;
-  return transitionValue;
+  const translationValue = translation ? translation[index] : undefined;
+  return translationValue;
 }
 
 function getWeekday(date: Parts) {
@@ -142,12 +142,12 @@ function format(...params: Parameters<DateZenPluginFormat>): string {
     }
     if (key.startsWith('M')) {
       if (key.length > 2) {
-        const transitionValue =
+        const translationValue =
           typeof date.month === 'number'
             ? getTranslation(key, date.month - 1, options)
             : undefined;
-        if (transitionValue) {
-          parts.set(key, transitionValue);
+        if (translationValue) {
+          parts.set(key, translationValue);
         } else {
           parts.set(key, toString(date.month, key));
           console.warn(
@@ -162,12 +162,12 @@ function format(...params: Parameters<DateZenPluginFormat>): string {
     if (key.startsWith('E')) {
       const weekday = getWeekday(date);
       if (key.length > 2) {
-        const transitionValue =
+        const translationValue =
           typeof weekday === 'number'
             ? getTranslation(key, weekday, options)
             : undefined;
-        if (transitionValue) {
-          parts.set(key, transitionValue);
+        if (translationValue) {
+          parts.set(key, translationValue);
         } else {
           parts.set(
             key,
