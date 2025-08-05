@@ -23,7 +23,7 @@ const tests = Array.from({ length: 100_000 }, (_, i) => {
 let index = 0;
 
 const bench = new Bench({
-  time: 20,
+  time: 1000,
   setup: (_task, mode) => {
     // Run the garbage collector before warmup at each cycle
     if (mode === 'warmup' && typeof globalThis.gc === 'function') {

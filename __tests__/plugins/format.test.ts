@@ -1,9 +1,12 @@
 import { describe, expect } from '@jest/globals';
 import format from '@/plugins/format';
+import enDictionary from '@/locale/en';
+import deDictionary from '@/locale/de';
 import dz from '@/index';
 
 describe('format', () => {
   beforeAll(() => {
+    format.registerDictionary({ en: enDictionary, de: deDictionary });
     dz.use('format', format);
   });
 
@@ -104,5 +107,125 @@ describe('format', () => {
     });
 
     expect(dateZen.format(pattern)).toEqual('2020-5-15 8:20:30 056/AM');
+  });
+
+  it('format en with weekday and month variations', () => {
+    const date1 = dz({
+      year: 1955,
+      month: 3,
+      day: 8, // Monday
+      hours: 0,
+      minutes: 0,
+      seconds: 0,
+      milliseconds: 0,
+    });
+    expect(
+      date1.format('EEE EEEE EEEEE MMM MMMM MMMMM EEEEE MMMMM', {
+        locale: 'en',
+      })
+    ).toEqual('Tue Tuesday T Mar March M T M');
+
+    const date2 = dz({
+      year: 2024,
+      month: 7,
+      day: 7, // Sunday
+      hours: 0,
+      minutes: 0,
+      seconds: 0,
+      milliseconds: 0,
+    });
+    expect(
+      date2.format('EEE EEEE EEEEE MMM MMMM MMMMM', { locale: 'en' })
+    ).toEqual('Sun Sunday S Jul July J');
+  });
+
+  it('format de with weekday and month variations', () => {
+    const pattern = 'EEE EEEE EEEEE MMM MMMM MMMMM';
+
+    const date1 = dz({
+      year: 1955,
+      month: 3,
+      day: 7, // Montag
+      hours: 0,
+      minutes: 0,
+      seconds: 0,
+      milliseconds: 0,
+    });
+    expect(date1.format(pattern, { locale: 'de' })).toEqual(
+      'Mo Montag M Mär März M'
+    );
+
+    const date2 = dz({
+      year: 2024,
+      month: 7,
+      day: 7, // Sonntag
+      hours: 0,
+      minutes: 0,
+      seconds: 0,
+      milliseconds: 0,
+    });
+    expect(date2.format(pattern, { locale: 'de' })).toEqual(
+      'So Sonntag S Jul Juli J'
+    );
+  });
+
+  it('format with inline dictionary object', () => {
+    const pattern = 'EEE EEEE EEEEE MMM MMMM MMMMM';
+    const dictionary = {
+      EEE: ['Do', 'Lu', 'Ma', 'Mi', 'Ju', 'Vi', 'Sa'],
+      EEEE: [
+        'Domingo',
+        'Lunes',
+        'Martes',
+        'Miércoles',
+        'Jueves',
+        'Viernes',
+        'Sábado',
+      ],
+      EEEEE: ['D', 'L', 'M', 'X', 'J', 'V', 'S'],
+      MMM: [
+        'Ene',
+        'Feb',
+        'Mar',
+        'Abr',
+        'May',
+        'Jun',
+        'Jul',
+        'Ago',
+        'Sep',
+        'Oct',
+        'Nov',
+        'Dic',
+      ],
+      MMMM: [
+        'Enero',
+        'Febrero',
+        'Marzo',
+        'Abril',
+        'Mayo',
+        'Junio',
+        'Julio',
+        'Agosto',
+        'Septiembre',
+        'Octubre',
+        'Noviembre',
+        'Diciembre',
+      ],
+      MMMMM: ['E', 'F', 'M', 'A', 'M', 'J', 'J', 'A', 'S', 'O', 'N', 'D'],
+    };
+
+    const date = dz({
+      year: 1955,
+      month: 3,
+      day: 6, // Sunday
+      hours: 0,
+      minutes: 0,
+      seconds: 0,
+      milliseconds: 0,
+    });
+
+    expect(date.format(pattern, { dictionary })).toEqual(
+      'Do Domingo D Mar Marzo M'
+    );
   });
 });

@@ -174,7 +174,8 @@ import dz from 'datezen';
 import formatPlugin from 'datezen/format';
 import diffPlugin from 'datezen/diff';
 
-dz.use('format', formatPlugin).use('diff', diffPlugin);
+dz.use('format', formatPlugin)
+  .use('diff', diffPlugin);
 
 const date = dz('2024-06-01T12:00:00Z');
 console.log(date.format('YYYY-MM-DD')); // → "2024-06-01"

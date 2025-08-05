@@ -1,10 +1,10 @@
 import strip from 'strip-comments';
 
-export function stripCommentsPlugin() {
+function stripPlugin() {
   return {
-    name: 'strip-comments',
+    name: 'strip-plugin',
     setup(build) {
-      build.onLoad({ filter: /\.[jt]s$/ }, async (args) => {
+      build.onLoad({ filter: /\.[tj]s$/ }, async (args) => {
         const fs = await import('fs/promises');
         const contents = await fs.readFile(args.path, 'utf8');
         const clean = strip(contents);
@@ -13,3 +13,5 @@ export function stripCommentsPlugin() {
     },
   };
 }
+
+export default stripPlugin;

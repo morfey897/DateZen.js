@@ -28,6 +28,10 @@
       "import": "./dist/diff/index.mjs",
       "require": "./dist/diff/index.cjs"
     },
+    "./locale/*": {
+      "import": "./dist/locale/*.mjs",
+      "require": "./dist/locale/*.cjs"
+    },
     "./package.json": "./package.json"
   },
   "typesVersions": {
@@ -38,8 +42,8 @@
       "diff": [
         "dist/diff/index.d.ts"
       ],
-      "plugin": [
-        "dist/plugin/index.d.ts"
+      "locale/*": [
+        "dist/locale/*.d.ts"
       ],
       "*": [
         "dist/index.d.ts"
