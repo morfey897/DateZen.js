@@ -110,20 +110,20 @@ describe('format', () => {
   });
 
   it('format en with weekday and month variations', () => {
-    const pattern = 'EEE EEEE EEEEE MMM MMMM MMMMM';
-
     const date1 = dz({
       year: 1955,
       month: 3,
-      day: 7, // Monday
+      day: 8, // Monday
       hours: 0,
       minutes: 0,
       seconds: 0,
       milliseconds: 0,
     });
-    expect(date1.format(pattern, { locale: 'en' })).toEqual(
-      'Mon Monday M Mar March M'
-    );
+    expect(
+      date1.format('EEE EEEE EEEEE MMM MMMM MMMMM EEEEE MMMMM', {
+        locale: 'en',
+      })
+    ).toEqual('Tue Tuesday T Mar March M T M');
 
     const date2 = dz({
       year: 2024,
@@ -134,9 +134,9 @@ describe('format', () => {
       seconds: 0,
       milliseconds: 0,
     });
-    expect(date2.format(pattern, { locale: 'en' })).toEqual(
-      'Sun Sunday S Jul July J'
-    );
+    expect(
+      date2.format('EEE EEEE EEEEE MMM MMMM MMMMM', { locale: 'en' })
+    ).toEqual('Sun Sunday S Jul July J');
   });
 
   it('format de with weekday and month variations', () => {

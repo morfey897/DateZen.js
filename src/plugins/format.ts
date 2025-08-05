@@ -6,8 +6,8 @@ import type {
 
 const GLOBAL_DICTIONARY: Record<string, Dictionary> = {};
 
-const getRegex = (key: string) =>
-  new RegExp(`(?<![a-zA-Z0-9\\\\])(?<!\\\\)${key}(?![a-zA-Z0-9])`);
+const getRegex = (key: string, flags?: string) =>
+  new RegExp(`(?<![a-zA-Z0-9\\\\])(?<!\\\\)${key}(?![a-zA-Z0-9])`, flags);
 
 const REG_EXP =
   /(?<![a-zA-Z0-9\\])(?<!\\)(Y{1,4}|M{1,5}|D{1,2}|E{1,5}|h{1,2}(?:\s*A|a)?|m{1,2}(?:\s*A|a)?|s{1,2}(?:\s*A|a)?|S|SSS(?:\s*A|a)?|A|a)(?![a-zA-Z0-9])/g;
@@ -42,12 +42,16 @@ const getAMPM = (value: Parts, key?: string): string | boolean => {
   return false;
 };
 
-function replaceTokens(pattern: string, memoize: Map<string, string>): string {
+function replaceTokens(
+  pattern: string,
+  memoize: Map<string, string>,
+  repeat: Set<string>
+): string {
   const regexCache = new Map<string, RegExp>();
   const replaced = [...memoize.entries()].reduce((acc, [key, value]) => {
     let tokenRegex = regexCache.get(key);
     if (!tokenRegex) {
-      tokenRegex = getRegex(key);
+      tokenRegex = getRegex(key, repeat.has(key) ? 'g' : undefined);
       regexCache.set(key, tokenRegex);
     }
     return acc.replace(tokenRegex, value);
@@ -109,6 +113,7 @@ function format(...params: Parameters<DateZenPluginFormat>): string {
   if (!match) return pattern;
 
   const parts = new Map<string, string>();
+  const repeat = new Set<string>();
 
   const replaceWithAMPM = (key: string, number: number = 0, p?: string[]) => {
     const ampm = getAMPM(date, key);
@@ -134,7 +139,10 @@ function format(...params: Parameters<DateZenPluginFormat>): string {
   const len = match.length;
   for (let i = 0; i < len; i++) {
     const key = match[i];
-    if (parts.has(key)) continue;
+    if (parts.has(key)) {
+      repeat.add(key);
+      continue;
+    }
     // Process the Y/M/D parts first
     if (key.startsWith('Y')) {
       parts.set(key, toString(date.year, key));
@@ -214,7 +222,7 @@ function format(...params: Parameters<DateZenPluginFormat>): string {
     }
   }
 
-  return replaceTokens(pattern, parts);
+  return replaceTokens(pattern, parts, repeat);
 }
 
 format.registerDictionary = (
